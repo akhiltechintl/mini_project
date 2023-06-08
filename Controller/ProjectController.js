@@ -17,6 +17,11 @@ router.post('/add-project', async (req, res) => {
             return res.send('Access Denied');
         } else {
             try {
+                const latestProject = await projectModel.findOne({}, {}, { sort: { projectid: -1 } });
+
+                // Increment the ID by 1
+                const projectid = latestProject ? latestProject.projectid + 1 : 1;
+
                 const {
                     _id,
                     status,
@@ -47,6 +52,7 @@ router.post('/add-project', async (req, res) => {
 
                 await projectModel.create({
                     _id,
+                    projectid,
                     status,
                     projectName,
                     projectDescription,
@@ -70,13 +76,13 @@ router.post('/add-project', async (req, res) => {
 
 router.post("/get/all", async (req,res)=>{
 
- try {
-     const getAll= await projectModel.find()
-     return res.status(200).json({body:getAll})
- }
- catch (error){
-     return res.status(400).json({error:error});
- }
+    try {
+        const getAll= await projectModel.find()
+        return res.status(200).json({body:getAll})
+    }
+    catch (error){
+        return res.status(400).json({error:error});
+    }
 });
 
 router.post("/update", async (req,res)=>{
