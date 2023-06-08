@@ -23,7 +23,7 @@ router.post('/add-project', async (req, res) => {
                 const projectid = latestProject ? latestProject.projectid + 1 : 1;
 
                 const {
-                    _id,
+
                     status,
                     projectName,
                     projectDescription,
@@ -37,7 +37,6 @@ router.post('/add-project', async (req, res) => {
                 } = req.body;
                 console.log('projecttttttttttttttttt');
                 console.log({
-                    _id,
                     status,
                     projectName,
                     projectDescription,
@@ -51,7 +50,6 @@ router.post('/add-project', async (req, res) => {
                 });
 
                 await projectModel.create({
-                    _id,
                     projectid,
                     status,
                     projectName,
@@ -68,7 +66,7 @@ router.post('/add-project', async (req, res) => {
                 return res.status(200).json({ message: 'Project saved successfully' });
             } catch (error) {
                 console.error('Error saving project:', error);
-                return res.status(400).json({ error: "Duplicate Project Found" });
+                return res.status(401).json({ error: error });
             }
         }
     });
@@ -92,7 +90,7 @@ router.post("/update", async (req,res)=>{
     console.log("body",existingProject  )
 
     if (existingProject) {
-try{
+        try{
             console.log("exists")
 
             await projectModel.findByIdAndUpdate(existingProject._id, req.body)
@@ -100,21 +98,21 @@ try{
 
         }
         catch (error){
-    return res.status(400).json({error:error});
+            return res.status(400).json({error:error});
         }
     }
     else
-        {
-            // await projectModel.create({email, firstname,lastname, phone,gender} );
-            return res.status(200).json({message: "project not found"})
-        }
+    {
+        // await projectModel.create({email, firstname,lastname, phone,gender} );
+        return res.status(200).json({message: "project not found"})
+    }
 
 
 });
 
 router.post("/delete/project",async (req,res)=>{
-    const id = req.body._id;
-    const existingProject = await projectModel.findOne({ _id: id });
+    const projectid = req.body.projectid;
+    const existingProject = await projectModel.findOne({ projectid: projectid });
 
     if (!existingProject) {
         return res.status(202).json({ message: "No Project Found With This Project Id" });

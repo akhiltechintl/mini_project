@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const projectSchema = new Schema({
-
         projectid: { type: Number, required: true },
         status: { type: String, required: true },
         projectName: { type: String, required: true },
@@ -11,7 +10,7 @@ const projectSchema = new Schema({
         projectDuration: { type: Number, required: true },
         portfolioId: { type: String, required: true },
         projectOwner: {
-            _id: { type: String, required: true },
+            id: { type: String, required: true },
             name: { type: String, required: true },
             email: { type: String, required: true },
         },

@@ -14,6 +14,7 @@ mongoose.connect("mongodb://0.0.0.0:27017/workluge", { useNewUrlParser: true, us
 
 app.use('/api', require('../routes/routes.js'));
 app.use('/api', require('../routes/projectRoute.js'));
+app.use('/api', require('../routes/taskRouter.js'));
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
