@@ -110,6 +110,34 @@ router.post("/update", async (req,res)=>{
 
 });
 
+router.post("/get-by-id", async (req,res)=>{
+
+    const {projectid} = req.body;
+    const existingProject=await projectModel.findOne({projectid:projectid})
+    console.log("body",existingProject  )
+    console.log("Id",projectid  )
+
+    if (existingProject) {
+        try{
+            console.log("exists")
+
+            // await projectModel.findByIdAndUpdate(existingProject._id, req.body)
+            return res.status(200).json({existingProject})
+
+        }
+        catch (error){
+            return res.status(400).json({error:error});
+        }
+    }
+    else
+    {
+        // await projectModel.create({email, firstname,lastname, phone,gender} );
+        return res.status(200).json({message: "project not found"})
+    }
+
+
+});
+
 router.post("/delete/project",async (req,res)=>{
     const projectid = req.body.projectid;
     const existingProject = await projectModel.findOne({ projectid: projectid });
