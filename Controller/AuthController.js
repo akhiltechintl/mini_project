@@ -11,7 +11,7 @@ const router=express.Router();
 
  router.post('/signup',async (req,res)=>{
     const {username,email,role,password}=req.body;
-    console.log("signup body "+ {username,email,password})
+    console.log("signup body "+ username,email,password)
     try{
 
         const existingUser=await userModel.findOne({email:email})
@@ -21,6 +21,7 @@ const router=express.Router();
         }
         else {
         const hashedPassword=await bcrypt.hash(password,10);
+        console.log(hashedPassword)
         const result=await userModel.create({
             email:email,
             password:hashedPassword,
