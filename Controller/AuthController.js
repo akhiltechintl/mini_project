@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const jwtAuth = require('../Middleware/jwtAuth');
 const router=express.Router();
 
- router.post('/signup',async (req,res)=>{
+ exports.signup=async (req,res)=>{
     const {username,email,role,password}=req.body;
     console.log("signup body "+ username,email,password)
     try{
@@ -33,10 +33,10 @@ return res.status(200).json({message: "Signup successful"})
     catch(error){
         console.log(error);
     }
-})
+}
 
 
-router.post('/test',async (req, res) => {
+exports.test=async (req, res) => {
     // Call the authenticateToken middleware
     jwtAuth.authenticateToken(req, res, (error) => {
         if (error) {
@@ -54,9 +54,9 @@ else
         console.log(req.headers.authorization);
         return res.send("Welcome Admin");
     });
-})
+}
 
-router.post('/signin',async (req, res) => {
+exports.signin=async (req, res) => {
     const {username, password} = req.body;
     const existingUser = await userModel.findOne({username: username})
     if (existingUser) {
@@ -78,6 +78,6 @@ router.post('/signin',async (req, res) => {
     else{
         return res.status(202).json({message:"user not found"})
         }
-    });
+    };
 
-module.exports = router;
+// module.exports = router;

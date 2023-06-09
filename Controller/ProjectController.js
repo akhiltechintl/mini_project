@@ -6,7 +6,7 @@ const express = require("express");
 const jwtAuth = require('../Middleware/jwtAuth');
 const router = express.Router();
 
-router.post('/add-project', async (req, res) => {
+exports.addProject= async (req, res) => {
     jwtAuth.authenticateToken(req, res, async (error) => {
         if (error) {
             return res.status(401).json({ error: 'Token not valid' });
@@ -70,9 +70,9 @@ router.post('/add-project', async (req, res) => {
             }
         }
     });
-});
+};
 
-router.post("/get/all", async (req,res)=>{
+exports.getAll= async (req,res)=>{
 
     try {
         const getAll= await projectModel.find()
@@ -81,9 +81,9 @@ router.post("/get/all", async (req,res)=>{
     catch (error){
         return res.status(400).json({error:error});
     }
-});
+};
 
-router.post("/update", async (req,res)=>{
+exports.update= async (req,res)=>{
 
     const {projectid} = req.body;
     const existingProject=await projectModel.findOne({projectid:projectid})
@@ -108,9 +108,9 @@ router.post("/update", async (req,res)=>{
     }
 
 
-});
+};
 
-router.post("/get-by-id", async (req,res)=>{
+exports.getById= async (req,res)=>{
 
     const {projectid} = req.body;
     const existingProject=await projectModel.findOne({projectid:projectid})
@@ -136,9 +136,10 @@ router.post("/get-by-id", async (req,res)=>{
     }
 
 
-});
+};
 
-router.post("/delete/project",async (req,res)=>{
+
+exports.deleteProject=async (req,res)=>{
     const projectid = req.body.projectid;
     const existingProject = await projectModel.findOne({ projectid: projectid });
 
@@ -156,6 +157,11 @@ router.post("/delete/project",async (req,res)=>{
     } catch (err) {
         return res.status(500).json({ message: "Deletion failed" });
     }
-})
+}
 
-module.exports = router;
+
+
+
+
+
+

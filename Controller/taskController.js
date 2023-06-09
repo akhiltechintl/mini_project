@@ -4,10 +4,11 @@ const express = require("express");
 const jwtAuth = require('../Middleware/jwtAuth');
 const projectModel = require("../Models/Project");
 const e = require("express");
+const {update} = require("./ProjectController");
 const router=express.Router();
 
 
-router.post('/add-task', async (req, res) => {
+exports.addTask= async (req, res) => {
 
         try
         {
@@ -63,10 +64,10 @@ router.post('/add-task', async (req, res) => {
                 return res.status(400).json({ error: error });
             }
 
-    });
+    };
 
 
-router.post("/update-task", async (req,res)=>{
+exports.updateTask= async (req,res)=>{
 
     const {taskid} = req.body;
     const existingTask=await taskModel.findOne({taskid:taskid})
@@ -91,9 +92,9 @@ router.post("/update-task", async (req,res)=>{
     }
 
 
-});
+};
 
-router.post("/delete-task",async (req,res)=>{
+exports.deleteTask= async (req,res)=>{
     const taskid = req.body.taskid;
     const existingTask = await taskModel.findOne({ taskid: taskid });
 console.log(taskid)
@@ -113,6 +114,6 @@ console.log(taskid)
     } catch (err) {
         return res.status(500).json({ error: err });
     }
-})
+}
 
-module.exports = router;
+// module.exports = router;

@@ -1,13 +1,11 @@
-const express = require("express");
-const router = express.Router();
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const app = express();
+const controller = require("../controller/taskController");
+const express = require('express')
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(cors());
+const router = express.Router()
 
-app.use('/task', require('../controller/taskController.js'));
+router.route("/add-task").post(controller.addTask);
+router.route("/update-task").put(controller.updateTask)
+router.route("/delete-task").delete(controller.deleteTask)
 
-module.exports = app;
+
+module.exports = router
