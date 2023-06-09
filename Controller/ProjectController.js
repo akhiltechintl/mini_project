@@ -4,6 +4,7 @@ const bcrypt=require('bcrypt')
 const controller = require('./AuthController');
 const express = require("express");
 const jwtAuth = require('../Middleware/jwtAuth');
+const peopleModel = require("../Models/People");
 const router = express.Router();
 
 exports.addProject= async (req, res) => {
@@ -20,7 +21,7 @@ exports.addProject= async (req, res) => {
                 const latestProject = await projectModel.findOne({}, {}, { sort: { projectid: -1 } });
 
                 // Increment the ID by 1
-                const projectid = latestProject ? latestProject.projectid + 1 : 1;
+                const projectid = await generateId();
 
                 const {
 
@@ -159,7 +160,17 @@ exports.deleteProject=async (req,res)=>{
     }
 }
 
+async function generateId() {
+    const lastProjectid = await projectModel.findOne({}, {}, { sort: { projectid: -1 } });
 
+    if (lastProjectid) {
+        const lastId = lastProjectid.projectid
+        const newId = (parseInt(lastId) + 1).toString().padStart(4, "0");
+        return newId;
+    }
+
+    return "0001";
+}
 
 
 

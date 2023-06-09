@@ -12,10 +12,10 @@ app.use(bodyParser.json());
 mongoose.connect("mongodb://0.0.0.0:27017/workluge", { useNewUrlParser: true, useUnifiedTopology: true });
 
 
-app.use('/api/auth', require('./Authroute.js'));
-app.use('/api/project', require('../routes/projectRoute.js'));
-app.use('/api/task', require('../routes/taskRouter.js'));
-app.use('/api/people', require('../routes/PeopleRoute'));
+app.use('/api/auth', require('./routes/Authroute.js'));
+app.use('/api/project', require('./routes/projectRoute.js'));
+app.use('/api/task', require('./routes/taskRouter.js'));
+app.use('/api/people', require('./routes/PeopleRoute'));
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

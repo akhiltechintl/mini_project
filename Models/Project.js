@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const projectSchema = new Schema({
-        projectid: { type: Number, required: true },
+        projectid: { type: String, required: true },
         status: { type: String, required: true },
         projectName: { type: String, required: true },
         projectDescription: { type: String, required: true },

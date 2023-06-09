@@ -12,10 +12,11 @@ exports.addTask= async (req, res) => {
 
         try
         {
-                const latestTask = await taskModel.findOne({}, {}, { sort: { taskid: -1 } });
+
 
                 // Increment the ID by 1
-                const taskid = latestTask ? latestTask.taskid + 1 : 1;
+                const taskid =await generateId();
+                console.log("task id", taskid)
 
             const {
                 status,
@@ -46,7 +47,7 @@ exports.addTask= async (req, res) => {
 
                 await taskModel.create({
                     taskid,
-                status,
+                  status,
                     assignee,
                     planHours,
                     duration,
@@ -114,6 +115,18 @@ console.log(taskid)
     } catch (err) {
         return res.status(500).json({ error: err });
     }
+}
+
+async function generateId() {
+    const lastTaskid = await taskModel.findOne({}, {}, { sort: { taskid: -1 } });
+
+    if (lastTaskid) {
+        const lastId = lastTaskid.taskid
+        const newId = (parseInt(lastId) + 1).toString().padStart(4, "0");
+        return newId;
+    }
+
+    return "0001";
 }
 
 // module.exports = router;
