@@ -18,7 +18,7 @@ exports.addTask= async (req, res) => {
                 const taskid =await generateId();
                 console.log("task id", taskid)
 
-            const {
+            const task= {
                 status,
                 assignee,
                 planHours,
@@ -31,35 +31,12 @@ exports.addTask= async (req, res) => {
                 projectid
             } = req.body;
 
-                console.log({
-                    status,
-                    assignee,
-                    planHours,
-                    duration,
-                    startOn,
-                    dueOn,
-                    taskName,
-                    description,
-                    createdBy,
-                    projectid
-                });
+                task.taskid=taskid;
 
 
-                await taskModel.create({
-                    taskid,
-                  status,
-                    assignee,
-                    planHours,
-                    duration,
-                    startOn,
-                    dueOn,
-                    taskName,
-                    description,
-                    createdBy,
-                    projectid
-            });
+         const save=       await taskModel.create(task);
 
-                return res.status(200).json({ message: 'task saved successfully' });
+                return res.status(200).json({ "saved": save});
             } catch (error) {
                 console.error('Error saving project:', error);
                 return res.status(400).json({ error: error.message });
@@ -71,6 +48,10 @@ exports.addTask= async (req, res) => {
 exports.updateTask= async (req,res)=>{
 
     const {taskid} = req.body;
+    if(!taskid){
+        return res.status(400).json({"error":"Task id is null"});
+
+    }
     const existingTask=await taskModel.findOne({taskid:taskid})
     console.log("body",existingTask  )
 
@@ -78,8 +59,8 @@ exports.updateTask= async (req,res)=>{
         try{
             console.log("exists")
 
-            await taskModel.findByIdAndUpdate(existingTask._id, req.body)
-            return res.status(200).json({message: "Task updated successfully"})
+      const updated=      await taskModel.findByIdAndUpdate(existingTask._id, req.body)
+            return res.status(200).json({"updated": updated})
 
         }
         catch (error){

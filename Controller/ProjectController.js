@@ -24,7 +24,7 @@ exports.addProject= async (req, res) => {
                 // Increment the ID by 1
                 const projectid = await generateId();
 
-                const {
+                const save={
 
                     status,
                     projectName,
@@ -38,34 +38,12 @@ exports.addProject= async (req, res) => {
                     updatedAt
                 } = req.body;
                 console.log('projecttttttttttttttttt');
-                console.log({
-                    status,
-                    projectName,
-                    projectDescription,
-                    projectDuration,
-                    portfolioId,
-                    projectOwner,
-                    projectedStartDate,
-                    projectedCompletionDate,
-                    createdAt,
-                    updatedAt
-                });
+                save.projectid=projectid;
 
-                await projectModel.create({
-                    projectid,
-                    status,
-                    projectName,
-                    projectDescription,
-                    projectDuration,
-                    portfolioId,
-                    projectOwner,
-                    projectedStartDate,
-                    projectedCompletionDate,
-                    createdAt,
-                    updatedAt
-                });
 
-                return res.status(200).json({ message: 'Project saved successfully' });
+           const saved=     await projectModel.create(saved);
+
+                return res.status(200).json({ "saved": saved });
             } catch (error) {
                 console.error('Error saving project:', error);
                 return res.status(401).json({ 'Error saving project': error.message });
@@ -88,6 +66,10 @@ exports.getAll= async (req,res)=>{
 exports.update= async (req,res)=>{
 
     const {projectid} = req.body;
+    if(!projectid){
+        return res.status(400).json({"error":"Project Id is null"});
+
+    }
     const existingProject=await projectModel.findOne({projectid:projectid})
     console.log("body",existingProject  )
 
@@ -95,8 +77,8 @@ exports.update= async (req,res)=>{
         try{
             console.log("exists")
 
-            await projectModel.findByIdAndUpdate(existingProject._id, req.body)
-            return res.status(200).json({message: "project updated successfully"})
+        const update=    await projectModel.findByIdAndUpdate(existingProject._id, req.body)
+            return res.status(200).json({"Updated":update})
 
         }
         catch (error){
@@ -159,8 +141,8 @@ exports.deleteProject=async (req,res)=>{
         const result = await projectModel.deleteOne({ projectid: projectid });
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Project deleted" });
-        } else {
-            return res.status(500).json({ message: "Deletion failed" });
+        } else if(result.deletedCount === 1){
+            return res.status(500).json({ message: "Id not found" });
         }
     } catch (err) {
         return res.status(500).json({ message: err.message });

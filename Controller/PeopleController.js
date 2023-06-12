@@ -10,7 +10,7 @@ exports.addPeople = async (req, res) => {
     try {
         console.log("called add People");
 
-        const {
+        const people={
             name,
             isActive,
             email,
@@ -23,24 +23,12 @@ exports.addPeople = async (req, res) => {
 
         // Generate unique portfolioId
         const peopleid = await generatePeopleId();
+        people.peopleid=peopleid;
 
 
+      const save= await peopleModel.create(people);
 
-        // const newPeople = new peopleModel({
-        //
-        // });
-
-        await peopleModel.create({ peopleid,
-            name,
-            isActive,
-            email,
-            phone,
-            address,
-            accesslevel,
-            jobInfo,
-            createdByID});
-
-        res.status(201).json({ message: "Successfully added", peopleid });
+        res.status(201).json({ "Saved" :save});
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
@@ -71,6 +59,10 @@ exports.getPeople = async (req, res) => {
 
 exports.updatePeople=async (req,res)=>{
     const peopleid = req.body.peopleid;
+    if(!peopleid){
+        return res.status(400).json({"error":"people id not found"});
+
+    }
     const existingPeople=await peopleModel.findOne({peopleid:peopleid})
     console.log("body",existingPeople  )
 
@@ -78,8 +70,8 @@ exports.updatePeople=async (req,res)=>{
         try{
             console.log("exists")
 
-            await peopleModel.findByIdAndUpdate(existingPeople._id, req.body)
-            return res.status(200).json({message: "People updated successfully"})
+       const update=     await peopleModel.findByIdAndUpdate(existingPeople._id, req.body)
+            return res.status(200).json({"updated": update})
 
         }
         catch (error){
@@ -110,7 +102,7 @@ exports.deletePeople=async (req,res)=>{
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Person deleted" });
         } else {
-            return res.status(500).json({ message: "Deletion failed" });
+            return res.status(500).json({ message: "not found" });
         }
     } catch (err) {
         return res.status(500).json({ message: err.message });

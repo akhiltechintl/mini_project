@@ -7,24 +7,17 @@ exports.addPortfolio=async (req,res)=>{
 
 
       const portfolioid = await generateId();
-      const {
+      const portfolio={
           portfolioDescription,
           status,
           portfolioManager,
           portfolioName,
           projectId
       } = req.body;
+      portfolio.portfolioid=portfolioid;
 
-      await portfolioModel.create({
-          portfolioid,
-          portfolioDescription,
-          status,
-          portfolioManager,
-          portfolioName,
-          projectId
-
-      })
-      return res.status(200).json({"message":"Portfolio Added Successfully"})
+     const save= await portfolioModel.create(portfolio)
+      return res.status(200).json({"Saved":save})
 
   }
   catch (error){
@@ -43,13 +36,17 @@ exports.getAll=async (req,res) => {
 }
 exports.updatePortfolio=async (req,res)=>{
     const portfolioid=req.body.portfolioid;
+    if(!portfolioid){
+        return res.status(400).json({"error":"Portfolio Id Not Found"})
+
+    }
     const existingPortfolio=await portfolioModel.exists({portfolioid:portfolioid})
     if(!existingPortfolio){
         return res.status(400).json({message:"Portfolio Not Found"})
     }
     try {
-        await portfolioModel.findByIdAndUpdate(existingPortfolio._id,req.body)
-        return res.status(200).json({message:"Portfolio Updated Successfully"})
+     const update=   await portfolioModel.findByIdAndUpdate(existingPortfolio._id,req.body)
+        return res.status(200).json({"updated":update})
     }
     catch (error){
         return res.status(400).json({"error":error.message})
@@ -94,9 +91,9 @@ exports.updateProject=async (req,res)=> {
             exist.projectId=req.body.projectId;
             console.log("existssssssss")
             console.log(exist.projectId)
-           await exist.save();
+        const update=   await exist.save();
            // await portfolioModel.findByIdAndUpdate(exist._id,exist)
-            return res.status(200).json({"message": "Project added to portfolio"})
+            return res.status(200).json({"Project updated": update})
         }
     }
     catch (error){
