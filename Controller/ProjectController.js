@@ -5,6 +5,7 @@ const controller = require('./AuthController');
 const express = require("express");
 const jwtAuth = require('../Middleware/jwtAuth');
 const peopleModel = require("../Models/People");
+const e = require("express");
 const router = express.Router();
 
 exports.addProject= async (req, res) => {
@@ -67,7 +68,7 @@ exports.addProject= async (req, res) => {
                 return res.status(200).json({ message: 'Project saved successfully' });
             } catch (error) {
                 console.error('Error saving project:', error);
-                return res.status(401).json({ error: error });
+                return res.status(401).json({ 'Error saving project': error.message });
             }
         }
     });
@@ -99,7 +100,7 @@ exports.update= async (req,res)=>{
 
         }
         catch (error){
-            return res.status(400).json({error:error});
+            return res.status(400).json({error:error.message});
         }
     }
     else
@@ -114,6 +115,9 @@ exports.update= async (req,res)=>{
 exports.getById= async (req,res)=>{
 
     const {projectid} = req.body;
+    if(!projectid){
+        return res.status(404).json({error:"Project Id is Required"})
+    }
     const existingProject=await projectModel.findOne({projectid:projectid})
     console.log("body",existingProject  )
     console.log("Id",projectid  )
@@ -142,21 +146,24 @@ exports.getById= async (req,res)=>{
 
 exports.deleteProject=async (req,res)=>{
     const projectid = req.body.projectid;
-    const existingProject = await projectModel.findOne({ projectid: projectid });
-
-    if (!existingProject) {
-        return res.status(202).json({ message: "No Project Found With This Project Id" });
+    if(!projectid){
+        return res.status(404).json({error:"Project Id is Required"})
     }
+    // const existingProject = await projectModel.findOne({ projectid: projectid });
+
+    // if (!existingProject) {
+    //     return res.status(202).json({ message: "No Project Found With This Project Id" });
+    // }
 
     try {
-        const result = await projectModel.deleteOne({ _id: existingProject._id });
+        const result = await projectModel.deleteOne({ projectid: projectid });
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Project deleted" });
         } else {
             return res.status(500).json({ message: "Deletion failed" });
         }
     } catch (err) {
-        return res.status(500).json({ message: "Deletion failed" });
+        return res.status(500).json({ message: err.message });
     }
 }
 

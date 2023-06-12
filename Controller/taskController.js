@@ -62,7 +62,7 @@ exports.addTask= async (req, res) => {
                 return res.status(200).json({ message: 'task saved successfully' });
             } catch (error) {
                 console.error('Error saving project:', error);
-                return res.status(400).json({ error: error });
+                return res.status(400).json({ error: error.message });
             }
 
     };
@@ -97,23 +97,23 @@ exports.updateTask= async (req,res)=>{
 
 exports.deleteTask= async (req,res)=>{
     const taskid = req.body.taskid;
-    const existingTask = await taskModel.findOne({ taskid: taskid });
-console.log(taskid)
-    if (!existingTask) {
-        console.log("!ex ",existingTask)
-        return res.status(202).json({ message: "No Task Found With Task Id" });
+//     const existingTask = await taskModel.findOne({ taskid: taskid });
+// console.log(taskid)
+    if (!taskid) {
+        console.log("!ex ",taskid)
+        return res.status(202).json({ message: "Task id is required" });
     }
 
     try {
-        console.log("exist ",existingTask)
-        const result = await taskModel.deleteOne({ _id: existingTask._id });
+        // console.log("exist ",existingTask)
+        const result = await taskModel.deleteOne({ taskid: taskid });
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Task deleted" });
         } else {
             return res.status(500).json({ message: "Deletion failed" });
         }
     } catch (err) {
-        return res.status(500).json({ error: err });
+        return res.status(500).json({ error: err.message });
     }
 }
 

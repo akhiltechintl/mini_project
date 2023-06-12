@@ -97,22 +97,22 @@ exports.updatePeople=async (req,res)=>{
 
 exports.deletePeople=async (req,res)=>{
     const peopleid = req.body.peopleid;
-    console.log("people Id ",peopleid)
-    const existingPeople = await peopleModel.findOne({ peopleid: peopleid });
-console.log(existingPeople)
-    if (!existingPeople) {
+    // console.log("people Id ",peopleid)
+    // const existingPeople = await peopleModel.findOne({ peopleid: peopleid });
+// console.log(existingPeople)
+    if (!peopleid) {
         console.log("not exists")
-        return res.status(202).json({ message: "No Person Found With This Id" });
+        return res.status(202).json({ message: "People Id is Required" });
     }
 
     try {console.log(" exists")
-        const result = await peopleModel.deleteOne({ _id: existingPeople._id });
+        const result = await peopleModel.deleteOne({ peopleid: peopleid });
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Person deleted" });
         } else {
             return res.status(500).json({ message: "Deletion failed" });
         }
     } catch (err) {
-        return res.status(500).json({ message: err });
+        return res.status(500).json({ message: err.message });
     }
 }
