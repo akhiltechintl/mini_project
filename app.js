@@ -16,6 +16,7 @@ app.use('/api/auth', require('./routes/Authroute.js'));
 app.use('/api/project', require('./routes/projectRoute.js'));
 app.use('/api/task', require('./routes/taskRouter.js'));
 app.use('/api/people', require('./routes/PeopleRoute'));
+app.use('/api/portfolio', require('./routes/PortfolioRoute'));
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

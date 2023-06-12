@@ -19,7 +19,7 @@ exports.addProject= async (req, res) => {
             return res.send('Access Denied');
         } else {
             try {
-                const latestProject = await projectModel.findOne({}, {}, { sort: { projectid: -1 } });
+                // const latestProject = await projectModel.findOne({}, {}, { sort: { projectid: -1 } });
 
                 // Increment the ID by 1
                 const projectid = await generateId();
