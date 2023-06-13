@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const peopleSchema = new Schema({
-        peopleid: { type: String, required: true },
+        peopleId: { type: String, required: true },
         name: { type: String, required: true },
         isActive: { type: String, required: true },
         email: { type: String, required: true },

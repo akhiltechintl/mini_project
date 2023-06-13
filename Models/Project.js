@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const projectSchema = new Schema({
-        projectid: { type: String, required: true },
+        projectId: { type: String, required: true },
         status: { type: String, required: true },
         projectName: { type: String, required: true },
         projectDescription: { type: String, required: true },
@@ -14,8 +14,11 @@ const projectSchema = new Schema({
             name: { type: String, required: true },
             email: { type: String, required: true },
         },
-        projectedStartDate: { type: Date, required: true },
-        projectedCompletionDate: { type: Date, required: true },
+        projectedStartDate: {
+             type: Date, required: true },
+        projectedCompletionDate: {
+            type: Date, required: true
+        },
     },
     {timestamps:true}
 );

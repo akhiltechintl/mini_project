@@ -9,20 +9,20 @@ const e = require("express");
 const router = express.Router();
 
 exports.addProject= async (req, res) => {
-    jwtAuth.authenticateToken(req, res, async (error) => {
-        if (error) {
-            return res.status(401).json({ error: 'Token not valid' });
-        }
-        const { role } = req.user;
-        console.log(role);
-        if (role === 'User') {
-            return res.send('Access Denied');
-        } else {
+    // jwtAuth.authenticateToken(req, res, async (error) => {
+    //     if (error) {
+    //         return res.status(401).json({ error: 'Token not valid' });
+    //     }
+    //     const { role } = req.user;
+    //     console.log(role);
+    //     if (role === 'User') {
+    //         return res.send('Access Denied');
+    //     } else {
             try {
-                // const latestProject = await projectModel.findOne({}, {}, { sort: { projectid: -1 } });
+                // const latestProject = await projectModel.findOne({}, {}, { sort: { projectId: -1 } });
 
                 // Increment the ID by 1
-                const projectid = await generateId();
+                const projectId = await generateId();
 
                 const save={
 
@@ -38,18 +38,18 @@ exports.addProject= async (req, res) => {
                     updatedAt
                 } = req.body;
                 console.log('projecttttttttttttttttt');
-                save.projectid=projectid;
+                save.projectId=projectId;
 
 
-           const saved=     await projectModel.create(saved);
+           const saved=     await projectModel.create(save);
 
                 return res.status(200).json({ "saved": saved });
             } catch (error) {
                 console.error('Error saving project:', error);
                 return res.status(401).json({ 'Error saving project': error.message });
             }
-        }
-    });
+        // }
+    // });
 };
 
 exports.getAll= async (req,res)=>{
@@ -65,17 +65,20 @@ exports.getAll= async (req,res)=>{
 
 exports.update= async (req,res)=>{
 
-    const {projectid} = req.body;
-    if(!projectid){
+    const projectId = req.body.projectId;
+    if(!projectId){
         return res.status(400).json({"error":"Project Id is null"});
 
     }
-    const existingProject=await projectModel.findOne({projectid:projectid})
+    const existingProject=await projectModel.findOne({projectId:projectId})
     console.log("body",existingProject  )
 
     if (existingProject) {
         try{
             console.log("exists")
+            console.log(existingProject.projectedStartDate)
+            console.log(req.body.projectedStartDate)
+
 
         const update=    await projectModel.findByIdAndUpdate(existingProject._id, req.body)
             return res.status(200).json({"Updated":update})
@@ -96,13 +99,13 @@ exports.update= async (req,res)=>{
 
 exports.getById= async (req,res)=>{
 
-    const {projectid} = req.body;
-    if(!projectid){
+    const projectId = req.body;
+    if(!projectId){
         return res.status(404).json({error:"Project Id is Required"})
     }
-    const existingProject=await projectModel.findOne({projectid:projectid})
+    const existingProject=await projectModel.findOne({projectId:projectId})
     console.log("body",existingProject  )
-    console.log("Id",projectid  )
+    console.log("Id",projectId  )
 
     if (existingProject) {
         try{
@@ -126,34 +129,31 @@ exports.getById= async (req,res)=>{
 };
 
 
-exports.deleteProject=async (req,res)=>{
-    const projectid = req.body.projectid;
-    if(!projectid){
-        return res.status(404).json({error:"Project Id is Required"})
+exports.deleteProject = async (req, res) => {
+    const {projectId} = req.params;
+    console.log("pro id", projectId);
+    if (!projectId) {
+        return res.status(404).json({ error: "Project Id is Required" });
     }
-    // const existingProject = await projectModel.findOne({ projectid: projectid });
-
-    // if (!existingProject) {
-    //     return res.status(202).json({ message: "No Project Found With This Project Id" });
-    // }
 
     try {
-        const result = await projectModel.deleteOne({ projectid: projectid });
+        const result = await projectModel.deleteOne({projectId:projectId});
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Project deleted" });
-        } else if(result.deletedCount === 1){
-            return res.status(500).json({ message: "Id not found" });
+        } else if (result.deletedCount === 0) {
+            return res.status(404).json({ message: "Id not found" });
         }
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
 }
 
+
 async function generateId() {
-    const lastProjectid = await projectModel.findOne({}, {}, { sort: { projectid: -1 } });
+    const lastProjectid = await projectModel.findOne({}, {}, { sort: { projectId: -1 } });
 
     if (lastProjectid) {
-        const lastId = lastProjectid.projectid
+        const lastId = lastProjectid.projectId
         const newId = (parseInt(lastId) + 1).toString().padStart(4, "0");
         return newId;
     }

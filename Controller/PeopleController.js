@@ -22,8 +22,8 @@ exports.addPeople = async (req, res) => {
         }= req.body;
 
         // Generate unique portfolioId
-        const peopleid = await generatePeopleId();
-        people.peopleid=peopleid;
+        const peopleId = await generatePeopleId();
+        people.peopleId=peopleId;
 
 
       const save= await peopleModel.create(people);
@@ -36,10 +36,10 @@ exports.addPeople = async (req, res) => {
 
 
 async function generatePeopleId() {
-    const lastPeopleid = await peopleModel.findOne({}, {}, { sort: { peopleid: -1 } });
+    const lastPeopleid = await peopleModel.findOne({}, {}, { sort: { peopleId: -1 } });
 
     if (lastPeopleid) {
-        const lastId = lastPeopleid.peopleid
+        const lastId = lastPeopleid.peopleId
         const newId = (parseInt(lastId) + 1).toString().padStart(4, "0");
         return newId;
     }
@@ -58,12 +58,12 @@ exports.getPeople = async (req, res) => {
 };
 
 exports.updatePeople=async (req,res)=>{
-    const peopleid = req.body.peopleid;
-    if(!peopleid){
+    const peopleId = req.body.peopleId;
+    if(!peopleId){
         return res.status(400).json({"error":"people id not found"});
 
     }
-    const existingPeople=await peopleModel.findOne({peopleid:peopleid})
+    const existingPeople=await peopleModel.findOne({peopleId:peopleId})
     console.log("body",existingPeople  )
 
     if (existingPeople) {
@@ -88,17 +88,18 @@ exports.updatePeople=async (req,res)=>{
 }
 
 exports.deletePeople=async (req,res)=>{
-    const peopleid = req.body.peopleid;
+    const peopleId = req.params;
+    console.log(peopleId)
     // console.log("people Id ",peopleid)
     // const existingPeople = await peopleModel.findOne({ peopleid: peopleid });
 // console.log(existingPeople)
-    if (!peopleid) {
+    if (!peopleId) {
         console.log("not exists")
         return res.status(202).json({ message: "People Id is Required" });
     }
 
     try {console.log(" exists")
-        const result = await peopleModel.deleteOne({ peopleid: peopleid });
+        const result = await peopleModel.deleteOne(peopleId, peopleId );
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Person deleted" });
         } else {
