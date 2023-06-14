@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const taskSchema = new Schema({
-        taskid: { type: String, required: false },
+        taskId: { type: String, required: false },
         status: { type: String, required: true },
-        assignee: { type: String, required: true },
+        assignee: { type: String },
         planHours: { type: String, required: true },
         duration: { type: Number, required: true },
         startOn: { type: String, required: true },
@@ -13,11 +13,11 @@ const taskSchema = new Schema({
         taskName: { type: String, required: true },
         description: { type: String, required: true },
         createdBy: {
-            id: { type: String, required: true },
+            _id: { type: String, required: true },
             name: { type: String, required: true },
             email: { type: String, required: true },
         },
-        projectid: { type: String, required: true },
+        projectId: { type: String },
     },
     {timestamps:true}
 );

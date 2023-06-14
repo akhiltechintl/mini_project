@@ -43,10 +43,10 @@ exports.addProject= async (req, res) => {
 
            const saved=     await projectModel.create(save);
 
-                return res.status(200).json({ "saved": saved });
+                return res.status(200).json({ "Message":"Project Saved Successfully","Data": saved });
             } catch (error) {
                 console.error('Error saving project:', error);
-                return res.status(401).json({ 'Error saving project': error.message });
+                return res.status(400).json({ 'Error saving project': error.message });
             }
         // }
     // });
@@ -56,7 +56,7 @@ exports.getAll= async (req,res)=>{
 
     try {
         const getAll= await projectModel.find()
-        return res.status(200).json({body:getAll})
+        return res.status(200).json(getAll)
     }
     catch (error){
         return res.status(400).json({error:error});
@@ -81,7 +81,7 @@ exports.update= async (req,res)=>{
 
 
         const update=    await projectModel.findByIdAndUpdate(existingProject._id, req.body)
-            return res.status(200).json({"Updated":update})
+            return res.status(200).json({"Message":"Project Updated Successfully","Data":update})
 
         }
         catch (error){
@@ -101,7 +101,7 @@ exports.getById= async (req,res)=>{
 
     const projectId = req.body;
     if(!projectId){
-        return res.status(404).json({error:"Project Id is Required"})
+        return res.status(400).json({error:"Project Id is Required"})
     }
     const existingProject=await projectModel.findOne({projectId:projectId})
     console.log("body",existingProject  )
@@ -133,7 +133,7 @@ exports.deleteProject = async (req, res) => {
     const {projectId} = req.params;
     console.log("pro id", projectId);
     if (!projectId) {
-        return res.status(404).json({ error: "Project Id is Required" });
+        return res.status(400).json({ error: "Project Id is Required" });
     }
 
     try {
@@ -141,10 +141,10 @@ exports.deleteProject = async (req, res) => {
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Project deleted" });
         } else if (result.deletedCount === 0) {
-            return res.status(404).json({ message: "Id not found" });
+            return res.status(400).json({ message: "Id not match" });
         }
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(400).json({ message: err.message });
     }
 }
 

@@ -15,8 +15,8 @@ exports.addTask= async (req, res) => {
 
 
                 // Increment the ID by 1
-                const taskid =await generateId();
-                console.log("task id", taskid)
+                const taskId =await generateId();
+                console.log("task id", taskId)
 
             const task= {
                 status,
@@ -28,15 +28,15 @@ exports.addTask= async (req, res) => {
                 taskName,
                 description,
                 createdBy,
-                projectid
+                projectId
             } = req.body;
 
-                task.taskid=taskid;
+                task.taskId=taskId;
 
 
          const save=       await taskModel.create(task);
 
-                return res.status(200).json({ "saved": save});
+                return res.status(200).json({ "Message":"Task Saved Successfully","Data":save});
             } catch (error) {
                 console.error('Error saving project:', error);
                 return res.status(400).json({ error: error.message });
@@ -47,12 +47,13 @@ exports.addTask= async (req, res) => {
 
 exports.updateTask= async (req,res)=>{
 
-    const {taskid} = req.body;
-    if(!taskid){
+    const {taskId} = req.body;
+    console.log("taask id",taskId)
+    if(!taskId){
         return res.status(400).json({"error":"Task id is null"});
 
     }
-    const existingTask=await taskModel.findOne({taskid:taskid})
+    const existingTask=await taskModel.findOne({taskId:taskId})
     console.log("body",existingTask  )
 
     if (existingTask) {
@@ -60,7 +61,7 @@ exports.updateTask= async (req,res)=>{
             console.log("exists")
 
       const updated=      await taskModel.findByIdAndUpdate(existingTask._id, req.body)
-            return res.status(200).json({"updated": updated})
+            return res.status(200).json({"Message":"Task Updated Successfully","Data":updated})
 
         }
         catch (error){
@@ -77,32 +78,37 @@ exports.updateTask= async (req,res)=>{
 };
 
 exports.deleteTask= async (req,res)=>{
-    const taskid = req.body.taskid;
-//     const existingTask = await taskModel.findOne({ taskid: taskid });
-// console.log(taskid)
-    if (!taskid) {
-        console.log("!ex ",taskid)
-        return res.status(202).json({ message: "Task id is required" });
+    const taskId = req.params.taskId;
+//     const existingTask = await taskModel.findOne({ taskId: taskId });
+// console.log(taskId)
+    if (!taskId) {
+        console.log("!ex ",taskId)
+        return res.status(400).json({ message: "Task id is required" });
     }
 
     try {
         // console.log("exist ",existingTask)
-        const result = await taskModel.deleteOne({ taskid: taskid });
+        const result = await taskModel.deleteOne({ taskId: taskId });
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Task deleted" });
-        } else {
-            return res.status(500).json({ message: "Deletion failed" });
+        } if(result.deletedCount === 0) {
+            return res.status(400).json({ message: "Task Id not matching" });
         }
     } catch (err) {
-        return res.status(500).json({ error: err.message });
+        return res.status(400).json({ error: err.message });
     }
 }
 
-async function generateId() {
-    const lastTaskid = await taskModel.findOne({}, {}, { sort: { taskid: -1 } });
+exports.getAll=async (req,res)=>{
+    const getAll=await taskModel.find();
+    return res.status(200).json({"message":"Successfully called get","data":getAll});
+}
 
-    if (lastTaskid) {
-        const lastId = lastTaskid.taskid
+async function generateId() {
+    const lastTaskId = await taskModel.findOne({}, {}, { sort: { taskId: -1 } });
+
+    if (lastTaskId) {
+        const lastId = lastTaskId.taskId
         const newId = (parseInt(lastId) + 1).toString().padStart(4, "0");
         return newId;
     }

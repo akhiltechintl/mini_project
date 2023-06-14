@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const portfolioSchema = new Schema({
-    portfolioid: { type: String },
+    portfolioId: { type: String },
     portfolioDescription: { type: String, required: true },
     status: { type: String, required: true },
     portfolioManager: {

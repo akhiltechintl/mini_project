@@ -28,9 +28,9 @@ exports.addPeople = async (req, res) => {
 
       const save= await peopleModel.create(people);
 
-        res.status(201).json({ "Saved" :save});
+        res.status(201).json({"Message":"Saved Successfully","Data":save});
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(400).send({ message: error.message });
     }
 };
 
@@ -71,7 +71,7 @@ exports.updatePeople=async (req,res)=>{
             console.log("exists")
 
        const update=     await peopleModel.findByIdAndUpdate(existingPeople._id, req.body)
-            return res.status(200).json({"updated": update})
+            return res.status(200).json({"Message":"Updated Successfully","Data":update})
 
         }
         catch (error){
@@ -87,25 +87,44 @@ exports.updatePeople=async (req,res)=>{
 
 }
 
+
+// Assuming you have defined your people schema and model
+
+// Define your route
+exports.getAssignee=async (req, res) => {
+    // Find users with accesslevel as 'User' and project only the required fields
+    try {
+        // Find users with accesslevel as 'User' and project only the required fields
+        const users = await peopleModel.find({ accesslevel: 'User' }).select('name peopleId');
+
+        // Send the response with the users data
+        res.json({ message: 'Users successfully fetched', users: users });
+    } catch (err) {
+        console.error('Failed to fetch users:', err);
+        res.status(400).json({ message: err.message });
+    }
+};
+
+
 exports.deletePeople=async (req,res)=>{
-    const peopleId = req.params;
+    const peopleId = req.params.peopleId;
     console.log(peopleId)
     // console.log("people Id ",peopleid)
     // const existingPeople = await peopleModel.findOne({ peopleid: peopleid });
 // console.log(existingPeople)
     if (!peopleId) {
         console.log("not exists")
-        return res.status(202).json({ message: "People Id is Required" });
+        return res.status(200).json({ message: "People Id is Required" });
     }
 
     try {console.log(" exists")
-        const result = await peopleModel.deleteOne(peopleId, peopleId );
+        const result = await peopleModel.deleteOne({peopleId: peopleId} );
         if (result.deletedCount === 1) {
             return res.status(200).json({ message: "Person deleted" });
-        } else {
-            return res.status(500).json({ message: "not found" });
+        } if(result.deletedCount === 0) {
+            return res.status(400).json({ message: "Id doesn't match" });
         }
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        return res.status(400).json({ message: err.message });
     }
 }

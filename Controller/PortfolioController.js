@@ -6,7 +6,7 @@ exports.addPortfolio=async (req,res)=>{
   try {
 
 
-      const portfolioid = await generateId();
+      const portfolioId = await generateId();
       const portfolio={
           portfolioDescription,
           status,
@@ -14,10 +14,10 @@ exports.addPortfolio=async (req,res)=>{
           portfolioName,
           projectId
       } = req.body;
-      portfolio.portfolioid=portfolioid;
+      portfolio.portfolioId=portfolioId;
 
      const save= await portfolioModel.create(portfolio)
-      return res.status(200).json({"Saved":save})
+      return res.status(200).json({"Message":"Portfolio Saved Successfully","Data":save})
 
   }
   catch (error){
@@ -35,18 +35,18 @@ exports.getAll=async (req,res) => {
     }
 }
 exports.updatePortfolio=async (req,res)=>{
-    const portfolioid=req.body.portfolioid;
-    if(!portfolioid){
+    const portfolioId=req.body.portfolioId;
+    if(!portfolioId){
         return res.status(400).json({"error":"Portfolio Id Not Found"})
 
     }
-    const existingPortfolio=await portfolioModel.exists({portfolioid:portfolioid})
+    const existingPortfolio=await portfolioModel.exists({portfolioId:portfolioId})
     if(!existingPortfolio){
         return res.status(400).json({message:"Portfolio Not Found"})
     }
     try {
      const update=   await portfolioModel.findByIdAndUpdate(existingPortfolio._id,req.body)
-        return res.status(200).json({"updated":update})
+        return res.status(200).json({"Message":"Portfolio Updated Successfully","Data":update})
     }
     catch (error){
         return res.status(400).json({"error":error.message})
@@ -54,16 +54,17 @@ exports.updatePortfolio=async (req,res)=>{
 }
 
 exports.deletePortfolio=async (req,res)=>{
-    const portfolioid=req.body.portfolioid;
-    if(!portfolioid){
+    const portfolioId=req.params.portfolioId;
+    console.log("portfolio Id ",portfolioId)
+    if(!portfolioId){
         return res.status(400).json({"error":"Portfolio id is required to perform this action"})
     }
     try{
-    const deleted=   await portfolioModel.deleteOne({portfolioid:portfolioid})
+    const deleted=   await portfolioModel.deleteOne({portfolioId:portfolioId})
         if(deleted.deletedCount===1){
         return res.status(200).json({"message":"deleted"})
-    }else {
-            return res.status(400).json({"message":"Portfolio not found"})
+    }if(deleted.deletedCount===0) {
+            return res.status(400).json({"message":"Portfolio Id not match"})
 
         }
     }catch (error){
@@ -80,8 +81,8 @@ exports.updateProject=async (req,res)=> {
             return res.status(400).json({"error": "Project Id is required"})
 
         }
-        const portfolioid = req.body.portfolioid;
-        const exist = await portfolioModel.findOne({porfolioid: portfolioid})
+        const portfolioId = req.body.portfolioId;
+        const exist = await portfolioModel.findOne({portfolioId: portfolioId})
         if (!exist) {
             return res.status(400).json({"error": "Portfolio not found"})
         }
@@ -93,7 +94,7 @@ exports.updateProject=async (req,res)=> {
             console.log(exist.projectId)
         const update=   await exist.save();
            // await portfolioModel.findByIdAndUpdate(exist._id,exist)
-            return res.status(200).json({"Project updated": update})
+            return res.status(200).json({"Message":"Project updated to portfolio","Data":update})
         }
     }
     catch (error){
@@ -104,10 +105,10 @@ exports.updateProject=async (req,res)=> {
 
 
 async function generateId() {
-    const lastPortfolioid = await portfolioModel.findOne({}, {}, { sort: { portfolioid: -1 } });
+    const lastPortfolioid = await portfolioModel.findOne({}, {}, { sort: { portfolioId: -1 } });
 
     if (lastPortfolioid) {
-        const lastId = lastPortfolioid.portfolioid
+        const lastId = lastPortfolioid.portfolioId
         const newId = (parseInt(lastId) + 1).toString().padStart(4, "0");
         return newId;
     }
