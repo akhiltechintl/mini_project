@@ -12,12 +12,12 @@ const router = express.Router();
 exports.addProject= async (req, res) => {
     jwtAuth.authenticateToken(req, res, async (error) => {
         if (error) {
-            return res.status(401).json({ error: 'Token not valid' });
+            return res.status(200).json({"message": 'Token not valid' });
         }
         const { role } = req.user;
         console.log(role);
         if (role === 'User') {
-            return res.status(400).json("Access Denied");
+            return res.status(401).json("Access Denied");
         } else {
             try {
                 // const latestProject = await projectModel.findOne({}, {}, { sort: { projectId: -1 } });
@@ -38,7 +38,6 @@ exports.addProject= async (req, res) => {
                     createdAt,
                     updatedAt
                 } = req.body;
-                console.log('projecttttttttttttttttt');
                 save.projectId=projectId;
 
 
@@ -46,8 +45,7 @@ exports.addProject= async (req, res) => {
 
                 return res.status(200).json({ "Message":"Project Saved Successfully","Data": saved });
             } catch (error) {
-                console.error('Error saving project:', error);
-                return res.status(400).json({ 'Error saving project': error.message });
+                return res.status(400).json({ 'error': error.message });
             }
         }
     });
@@ -57,68 +55,35 @@ exports.getAll= async (req,res)=>{
 
     try {
         const getAll= await projectModel.find()
-        return res.status(200).json(getAll)
+        return res.status(200).json({"data":getAll})
     }
     catch (error){
-        return res.status(400).json({error:error});
+        return res.status(400).json({"error":error});
     }
 };
 
-// exports.update= async (req,res)=>{
-//
-//     const projectId = req.body.projectId;
-//     if(!projectId){
-//         return res.status(400).json({"error":"Project Id is null"});
-//
-//     }
-//     const existingProject=await projectModel.findOne({projectId:projectId})
-//     console.log("body",existingProject  )
-//
-//     if (existingProject) {
-//         try{
-//             console.log("exists")
-//             console.log(existingProject.projectedStartDate)
-//             console.log(req.body.projectedStartDate)
-//
-//
-//         const update=    await projectModel.findByIdAndUpdate(existingProject._id, req.body)
-//             return res.status(200).json({"Message":"Project Updated Successfully","Data":update})
-//
-//         }
-//         catch (error){
-//             return res.status(400).json({error:error.message});
-//         }
-//     }
-//     else
-//     {
-//         // await projectModel.create({email, firstname,lastname, phone,gender} );
-//         return res.status(200).json({message: "project not found"})
-//     }
-//
-//
-// };
 
 
 exports.update = async (req, res) => {
     const projectId = req.body.projectId;
     console.log("projectID",projectId)
     if (!projectId) {
-        return res.status(400).json({ "error": "Project Id is null" });
+        return res.status(200).json({ "message": "Project Id is null" });
     }
 
     try {
-        const update = await peopleModel.updateOne(
-            { peopleId: peopleId },
+        const update = await projectModel.updateOne(
+            { projectId: projectId },
             { $set: req.body },
             { new: false, upsert: false }
         );
-        if (update) {
+        if (update.modifiedCount > 0 && update.matchedCount > 0) {
             return res.status(200).json({ "Message": "Project Updated Successfully" });
         } else {
             return res.status(200).json({ "message": "No record found" });
         }
     } catch (error) {
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({ "error": error.message });
     }
 };
 
@@ -128,30 +93,24 @@ exports.getById= async (req,res)=>{
 
     const projectId = req.body;
     if(!projectId){
-        return res.status(400).json({error:"Project Id is Required"})
+        return res.status(200).json({"message":"Project Id is Required"})
     }
     const existingProject=await projectModel.findOne({projectId:projectId})
     console.log("body",existingProject  )
     console.log("Id",projectId  )
 
-    if (existingProject) {
-        try{
-            console.log("exists")
-
-            // await projectModel.findByIdAndUpdate(existingProject._id, req.body)
-            return res.status(200).json({existingProject})
-
+    try {
+        console.log("exists")
+        if (existingProject) {
+            return res.status(200).json({"data": existingProject})
+            }
+        else {
+            return res.status(200).json({"message": "project not found"})
+            }
         }
-        catch (error){
-            return res.status(400).json({error:error});
-        }
+    catch (error){
+        return res.status(400).json({"error":error.message});
     }
-    else
-    {
-        // await projectModel.create({email, firstname,lastname, phone,gender} );
-        return res.status(200).json({message: "project not found"})
-    }
-
 
 };
 
@@ -160,18 +119,18 @@ exports.deleteProject = async (req, res) => {
     const {projectId} = req.params;
     console.log("pro id", projectId);
     if (!projectId) {
-        return res.status(400).json({ error: "Project Id is Required" });
+        return res.status(200).json({ "message": "Project Id is Required" });
     }
 
     try {
         const result = await projectModel.deleteOne({projectId:projectId});
         if (result.deletedCount === 1) {
-            return res.status(200).json({ message: "Project deleted" });
+            return res.status(200).json({ "message": "Project deleted" });
         } else if (result.deletedCount === 0) {
-            return res.status(400).json({ message: "Id not match" });
+            return res.status(200).json({ "message": "Id not match" });
         }
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ "message": err.message });
     }
 }
 
@@ -182,7 +141,7 @@ exports.notAssignedProjects=async (req, res) => {
             res.status(200).json({"data":projects});
         })
         .catch(error => {
-            res.status(500).json({ "error": error.message });
+            res.status(400).json({ "error": error.message });
         });
 };
 

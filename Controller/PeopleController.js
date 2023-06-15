@@ -6,6 +6,8 @@ const projectModel = require("../Models/Project");
 const router=express.Router();
 
 
+
+//Adding People To DB
 exports.addPeople = async (req, res) => {
     try {
         console.log("called add People");
@@ -28,13 +30,13 @@ exports.addPeople = async (req, res) => {
 
       const save= await peopleModel.create(people);
 
-        res.status(201).json({"Message":"Saved Successfully","Data":save});
+        res.status(200).json({"Message":"Saved Successfully","Data":save});
     } catch (error) {
-        res.status(400).send({ message: error.message });
+        res.status(400).json({ "message": error.message });
     }
 };
 
-
+//Function To Generate PeopleId
 async function generatePeopleId() {
     const lastPeopleid = await peopleModel.findOne({}, {}, { sort: { peopleId: -1 } });
 
@@ -47,45 +49,18 @@ async function generatePeopleId() {
     return "0001";
 }
 
+//API To Get-All People
 exports.getPeople = async (req, res) => {
     try {
 
         const getAll=await peopleModel.find();
-        return res.status(200).json({body:getAll})
+        return res.status(200).json({"data":getAll})
 }catch (error){
         return res.status(400).json({error:error});
     }
 };
 
-// exports.updatePeople=async (req,res)=>{
-//     const peopleId = req.body.peopleId;
-//     if(!peopleId){
-//         return res.status(400).json({"error":"people id not found"});
-//
-//     }
-//     const existingPeople=await peopleModel.findOne({peopleId:peopleId})
-//     console.log("body",existingPeople  )
-//
-//     if (existingPeople) {
-//         try{
-//             console.log("exists")
-//
-//        const update=     await peopleModel.findByIdAndUpdate(existingPeople._id, req.body)
-//             return res.status(200).json({"Message":"Updated Successfully","Data":update})
-//
-//         }
-//         catch (error){
-//             return res.status(400).json({error:error});
-//         }
-//     }
-//     else
-//     {
-//         // await projectModel.create({email, firstname,lastname, phone,gender} );
-//         return res.status(200).json({message: "not found"})
-//     }
-//
-//
-// }
+
 
 
 
@@ -93,19 +68,17 @@ exports.updatePeople = async (req, res) => {
     const peopleId = req.body.peopleId;
     console.log("peopleId", peopleId);
     if (!peopleId) {
-        return res.status(400).json({ "error": "People Id is null" });
+        return res.status(200).json({ "message": "People Id is null" });
     }
 
     try {
         const update = await peopleModel.updateOne(
             { peopleId: peopleId },
             { $set: req.body },
-            { new: true, upsert: true }
+            { new: true, upsert: false }
         );
-        console.log(update)
 
-
-            if (update) {
+        if (update.modifiedCount > 0 && update.matchedCount > 0) {
                 return res.status(200).json({ "message": "People Updated Successfully" });
             } else {
                 return res.status(200).json({ "message": "No Record Found" });
@@ -122,16 +95,12 @@ exports.updatePeople = async (req, res) => {
 
 
 exports.getAssignee=async (req, res) => {
-    // Find users with accesslevel as 'User' and project only the required fields
     try {
-        // Find users with accesslevel as 'User' and project only the required fields
         const users = await peopleModel.find({ accesslevel: 'User' }).select('name peopleId');
-
-        // Send the response with the users data
-        res.json({ message: 'Users successfully fetched', users: users });
+      return   res.status.json({ message: 'successfully fetched users', users: users });
     } catch (err) {
         console.error('Failed to fetch users:', err);
-        res.status(400).json({ message: err.message });
+       return  res.status(400).json({ message: err.message });
     }
 };
 
@@ -139,9 +108,6 @@ exports.getAssignee=async (req, res) => {
 exports.deletePeople=async (req,res)=>{
     const peopleId = req.params.peopleId;
     console.log(peopleId)
-    // console.log("people Id ",peopleid)
-    // const existingPeople = await peopleModel.findOne({ peopleid: peopleid });
-// console.log(existingPeople)
     if (!peopleId) {
         console.log("not exists")
         return res.status(200).json({ message: "People Id is Required" });
@@ -150,11 +116,11 @@ exports.deletePeople=async (req,res)=>{
     try {console.log(" exists")
         const result = await peopleModel.deleteOne({peopleId: peopleId} );
         if (result.deletedCount === 1) {
-            return res.status(200).json({ message: "Person deleted" });
+            return res.status(200).json({ "message": "Person deleted" });
         } if(result.deletedCount === 0) {
-            return res.status(400).json({ message: "Id doesn't match" });
+            return res.status(200).json({ "message": "Id doesn't match" });
         }
     } catch (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ "error": err.message });
     }
 }

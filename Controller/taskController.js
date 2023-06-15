@@ -12,9 +12,6 @@ exports.addTask= async (req, res) => {
 
         try
         {
-
-
-                // Increment the ID by 1
                 const taskId =await generateId();
                 console.log("task id", taskId)
 
@@ -38,64 +35,51 @@ exports.addTask= async (req, res) => {
 
                 return res.status(200).json({ "Message":"Task Saved Successfully","Data":save});
             } catch (error) {
-                console.error('Error saving project:', error);
-                return res.status(400).json({ error: error.message });
+                return res.status(400).json({ "error": error.message });
             }
 
     };
 
 
-exports.updateTask= async (req,res)=>{
-
-    const {taskId} = req.body;
-    console.log("taask id",taskId)
-    if(!taskId){
-        return res.status(400).json({"error":"Task id is null"});
-
-    }
-    const existingTask=await taskModel.findOne({taskId:taskId})
-    console.log("body",existingTask  )
-
-    if (existingTask) {
-        try{
-            console.log("exists")
-
-      const updated=      await taskModel.findByIdAndUpdate(existingTask._id, req.body)
-            return res.status(200).json({"Message":"Task Updated Successfully","Data":updated})
-
-        }
-        catch (error){
-            return res.status(400).json({error:error});
-        }
-    }
-    else
-    {
-        // await projectModel.create({email, firstname,lastname, phone,gender} );
-        return res.status(200).json({message: "Task not found"})
-    }
-
-
-};
-
-exports.deleteTask= async (req,res)=>{
-    const taskId = req.params.taskId;
-//     const existingTask = await taskModel.findOne({ taskId: taskId });
-// console.log(taskId)
+exports.updateTask = async (req, res) => {
+    const taskId = req.body.taskId;
+    console.log("taskId",taskId)
     if (!taskId) {
-        console.log("!ex ",taskId)
-        return res.status(400).json({ message: "Task id is required" });
+        return res.status(200).json({ "message": "Task Id is null" });
     }
 
     try {
-        // console.log("exist ",existingTask)
+        const update = await taskModel.updateOne(
+            { taskId: taskId },
+            { $set: req.body },
+            { new: false, upsert: false }
+        );
+        if (update.modifiedCount > 0 && update.matchedCount > 0) {
+            return res.status(200).json({ "Message": "Task Updated Successfully" });
+        } else {
+            return res.status(200).json({ "message": "No record found" });
+        }
+    } catch (error) {
+        return res.status(400).json({ "error": error.message });
+    }
+};
+
+
+exports.deleteTask= async (req,res)=>{
+    const taskId = req.params.taskId;
+    if (!taskId) {
+        return res.status(200).json({ "message": "Task id is required" });
+    }
+
+    try {
         const result = await taskModel.deleteOne({ taskId: taskId });
         if (result.deletedCount === 1) {
-            return res.status(200).json({ message: "Task deleted" });
+            return res.status(200).json({ "message": "Task deleted" });
         } if(result.deletedCount === 0) {
-            return res.status(400).json({ message: "Task Id not matching" });
+            return res.status(200).json({ "message": "Task Id not matching" });
         }
     } catch (err) {
-        return res.status(400).json({ error: err.message });
+        return res.status(400).json({ "error": err.message });
     }
 }
 
@@ -104,8 +88,6 @@ exports.getAll=async (req,res)=>{
     return res.status(200).json({"message":"Successfully called get","data":getAll});
 }
 
-
-const mongoose = require("mongoose");
 
 exports.addAssignee= (req, res) => {
     const { taskId } = req.params;
@@ -119,7 +101,7 @@ exports.addAssignee= (req, res) => {
             if (updatedTask) {
               return   res.status(200).json({"message":"Assignee Successfully tagged to Task","data":updatedTask});
             } else {
-                res.status(400).json({ "message": 'Task not found.' });
+                res.status(200).json({ "message": 'Task not found.' });
             }
         })
         .catch(error => {
