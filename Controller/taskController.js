@@ -104,6 +104,30 @@ exports.getAll=async (req,res)=>{
     return res.status(200).json({"message":"Successfully called get","data":getAll});
 }
 
+
+const mongoose = require("mongoose");
+
+exports.addAssignee= (req, res) => {
+    const { taskId } = req.params;
+    const { assignee } = req.body;
+
+    if(!taskId || !assignee){
+        return res.status(200).json({"Message":"Task Id And Assignee Id is required"})
+    }
+    taskModel.findOneAndUpdate({ taskId: taskId }, { assignee }, { new: true })
+        .then(updatedTask => {
+            if (updatedTask) {
+              return   res.status(200).json({"message":"Assignee Successfully tagged to Task","data":updatedTask});
+            } else {
+                res.status(400).json({ "message": 'Task not found.' });
+            }
+        })
+        .catch(error => {
+            res.status(400).json({ "error": error.message });
+        });
+};
+
+
 async function generateId() {
     const lastTaskId = await taskModel.findOne({}, {}, { sort: { taskId: -1 } });
 

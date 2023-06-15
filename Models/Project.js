@@ -8,9 +8,9 @@ const projectSchema = new Schema({
         projectName: { type: String, required: true },
         projectDescription: { type: String, required: true },
         projectDuration: { type: Number, required: true },
-        portfolioId: { type: String, required: true },
+        portfolioId: { type: String },
         projectOwner: {
-            id: { type: String, required: true },
+            _id: { type: String, required: true },
             name: { type: String, required: true },
             email: { type: String, required: true },
         },

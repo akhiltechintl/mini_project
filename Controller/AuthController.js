@@ -10,7 +10,7 @@ const jwtAuth = require('../Middleware/jwtAuth');
 const router=express.Router();
 
  exports.signup=async (req,res)=>{
-    const {username,email,role,password}=req.body;
+    const {username,email,role,password,name}=req.body;
     console.log("signup body "+ username,email,password)
     try{
 
@@ -23,6 +23,7 @@ const router=express.Router();
         const hashedPassword=await bcrypt.hash(password,10);
         console.log(hashedPassword)
         const result=await userModel.create({
+            name:name,
             email:email,
             password:hashedPassword,
             username:username,
@@ -69,14 +70,14 @@ exports.signin=async (req, res) => {
             const token = jwt.sign({ userId: user, role: role }, secretKey);
             console.log("Tken....")
             console.log(token)
-            return res.status(200).json({token:`${token}`})
+            return res.status(200).json({token:`${token}`,"role":role})
         } else {
             return res.status(400).json({message: "invalid credentials"});
 
         }
     }
     else{
-        return res.status(202).json({message:"user not found"})
+        return res.status(400).json({message:"user not found"})
         }
     };
 

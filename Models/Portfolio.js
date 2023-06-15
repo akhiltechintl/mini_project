@@ -14,7 +14,6 @@ const portfolioSchema = new Schema({
     projectId: {
         ids: [
             { type: String},
-            { type: String}
         ]
     },
 

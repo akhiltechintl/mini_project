@@ -57,40 +57,70 @@ exports.getPeople = async (req, res) => {
     }
 };
 
-exports.updatePeople=async (req,res)=>{
+// exports.updatePeople=async (req,res)=>{
+//     const peopleId = req.body.peopleId;
+//     if(!peopleId){
+//         return res.status(400).json({"error":"people id not found"});
+//
+//     }
+//     const existingPeople=await peopleModel.findOne({peopleId:peopleId})
+//     console.log("body",existingPeople  )
+//
+//     if (existingPeople) {
+//         try{
+//             console.log("exists")
+//
+//        const update=     await peopleModel.findByIdAndUpdate(existingPeople._id, req.body)
+//             return res.status(200).json({"Message":"Updated Successfully","Data":update})
+//
+//         }
+//         catch (error){
+//             return res.status(400).json({error:error});
+//         }
+//     }
+//     else
+//     {
+//         // await projectModel.create({email, firstname,lastname, phone,gender} );
+//         return res.status(200).json({message: "not found"})
+//     }
+//
+//
+// }
+
+
+
+exports.updatePeople = async (req, res) => {
     const peopleId = req.body.peopleId;
-    if(!peopleId){
-        return res.status(400).json({"error":"people id not found"});
-
-    }
-    const existingPeople=await peopleModel.findOne({peopleId:peopleId})
-    console.log("body",existingPeople  )
-
-    if (existingPeople) {
-        try{
-            console.log("exists")
-
-       const update=     await peopleModel.findByIdAndUpdate(existingPeople._id, req.body)
-            return res.status(200).json({"Message":"Updated Successfully","Data":update})
-
-        }
-        catch (error){
-            return res.status(400).json({error:error});
-        }
-    }
-    else
-    {
-        // await projectModel.create({email, firstname,lastname, phone,gender} );
-        return res.status(200).json({message: "not found"})
+    console.log("peopleId", peopleId);
+    if (!peopleId) {
+        return res.status(400).json({ "error": "People Id is null" });
     }
 
+    try {
+        const update = await peopleModel.updateOne(
+            { peopleId: peopleId },
+            { $set: req.body },
+            { new: true, upsert: true }
+        );
+        console.log(update)
 
-}
+
+            if (update) {
+                return res.status(200).json({ "message": "People Updated Successfully" });
+            } else {
+                return res.status(200).json({ "message": "No Record Found" });
+            }
+
+    } catch (error) {
+        return res.status(400).json({ "error": error.message });
+    }
+};
 
 
-// Assuming you have defined your people schema and model
 
-// Define your route
+
+
+
 exports.getAssignee=async (req, res) => {
     // Find users with accesslevel as 'User' and project only the required fields
     try {

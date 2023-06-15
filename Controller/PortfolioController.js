@@ -73,34 +73,59 @@ exports.deletePortfolio=async (req,res)=>{
     }
 }
 
-exports.updateProject=async (req,res)=> {
+// exports.updateProject=async (req,res)=> {
+//     try {
+//
+//         const newProjectid = req.body.projectId;
+//         if(!newProjectid){
+//             return res.status(400).json({"error": "Project Id is required"})
+//
+//         }
+//         const portfolioId = req.body.portfolioId;
+//         const exist = await portfolioModel.findOne({portfolioId: portfolioId})
+//         if (!exist) {
+//             return res.status(400).json({"error": "Portfolio not found"})
+//         }
+//         else {
+//
+//
+//             exist.projectId=req.body.projectId;
+//             console.log("existssssssss")
+//             console.log(exist.projectId)
+//         const update=   await exist.save();
+//            // await portfolioModel.findByIdAndUpdate(exist._id,exist)
+//             return res.status(200).json({"Message":"Project updated to portfolio","Data":update})
+//         }
+//     }
+//     catch (error){
+//         return res.status(400).json({"error":error.message})
+//     }
+// }
+
+
+exports.updateProject = async (req, res) => {
     try {
-
-        const newProjectid = req.body.projectId;
-        if(!newProjectid){
-            return res.status(400).json({"error": "Project Id is required"})
-
+        const { portfolioId } = req.params;
+        const { projectId } = req.body;
+        if(!portfolioId || !projectId)
+        {
+            return res.status(200).json({"message":"Portfolio ID and Project ID is Required"})
         }
-        const portfolioId = req.body.portfolioId;
-        const exist = await portfolioModel.findOne({portfolioId: portfolioId})
-        if (!exist) {
-            return res.status(400).json({"error": "Portfolio not found"})
-        }
-        else {
+        const updatedPortfolio = await portfolioModel.findOneAndUpdate(
+            { portfolioId },
+            { $push: { "projectId.ids": { $each: projectId?.ids || [] } } },
+            { new: true }
+        );
 
-
-            exist.projectId=req.body.projectId;
-            console.log("existssssssss")
-            console.log(exist.projectId)
-        const update=   await exist.save();
-           // await portfolioModel.findByIdAndUpdate(exist._id,exist)
-            return res.status(200).json({"Message":"Project updated to portfolio","Data":update})
+        if (!updatedPortfolio) {
+            return res.status(200).json({ message: "Portfolio not found" });
         }
+
+        res.json({ "message": "Successfully added project IDs to the portfolio", portfolio: updatedPortfolio });
+    } catch (error) {
+        res.status(400).send({ "message": error.message });
     }
-    catch (error){
-        return res.status(400).json({"error":error.message})
-    }
-}
+};
 
 
 
