@@ -81,4 +81,9 @@ exports.signin=async (req, res) => {
         }
     };
 
+ exports.test=(req,res)=>{
+     console.log("entered test api")
+     return res.send("entered test api");
+ }
+
 // module.exports = router;

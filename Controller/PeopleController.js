@@ -73,7 +73,7 @@ exports.updatePeople = async (req, res) => {
 exports.getAssignee = async (req, res) => {
     try {
         const users = await peopleModel.find({accesslevel: 'User'}).select('name peopleId');
-        return res.status.json({message: 'successfully fetched users', users: users});
+        return res.status(200).json({message: 'successfully fetched users', users: users});
     } catch (err) {
         console.error('Failed to fetch users:', err);
         return res.status(400).json({message: err.message});
