@@ -46,7 +46,7 @@ exports.updateTask = async (req, res) => {
             {new: false, upsert: false}
         );
         if (update.modifiedCount > 0 && update.matchedCount > 0) {
-            return res.status(200).json({"Message": "Task Updated Successfully"});
+            return res.status(200).json({"Message": "Task Updated Successfully","data":update});
         } else {
             return res.status(200).json({"message": "No record found"});
         }

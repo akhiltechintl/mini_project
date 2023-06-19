@@ -1,4 +1,5 @@
 const portfolioModel = require("../Models/Portfolio");
+const projectModel = require("../Models/Project");
 
 
 exports.addPortfolio = async (req, res) => {
@@ -49,7 +50,7 @@ exports.updatePortfolio = async (req, res) => {
             {new: false, upsert: false}
         );
         if (update.modifiedCount > 0 && update.matchedCount > 0) {
-            return res.status(200).json({"Message": "portfolioId Updated Successfully"});
+            return res.status(200).json({"Message": "portfolioId Updated Successfully","data":update});
         } else {
             return res.status(200).json({"message": "No record found"});
         }
@@ -94,11 +95,16 @@ exports.addProjectToPortfolio = async (req, res) => {
             {new: true}
         );
 
+
         if (!updatedPortfolio) {
             return res.status(200).json({"message": "Portfolio not found"});
         }
+else
+        {
+            projectModel.findOneAndUpdate({projectId: projectId}, {portfolioId}, {new: true})
+            res.status(200).json({"message": "Successfully added project IDs to the portfolio", "data": updatedPortfolio});
 
-        res.json({"message": "Successfully added project IDs to the portfolio", portfolio: updatedPortfolio});
+        }
     } catch (error) {
         res.status(400).send({"error": error.message});
     }

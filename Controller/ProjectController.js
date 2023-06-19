@@ -1,17 +1,9 @@
 const projectModel = require("../Models/Project");
 const jwtAuth = require('../Middleware/jwtAuth');
+const portfolioModel = require("../Models/Portfolio");
 
 
 exports.addProject = async (req, res) => {
-    jwtAuth.authenticateToken(req, res, async (error) => {
-        if (error) {
-            return res.status(200).json({"message": 'Token not valid'});
-        }
-        const {role} = req.user;
-        console.log(role);
-        if (role === 'User') {
-            return res.status(401).json("Access Denied");
-        } else {
             try {
                 // const latestProject = await projectModel.findOne({}, {}, { sort: { projectId: -1 } });
 
@@ -39,10 +31,10 @@ exports.addProject = async (req, res) => {
                 return res.status(200).json({"Message": "Project Saved Successfully", "Data": saved});
             } catch (error) {
                 return res.status(400).json({'error': error.message});
-            }
+
         }
-    });
-};
+    };
+
 
 exports.getAll = async (req, res) => {
 
@@ -69,7 +61,7 @@ exports.update = async (req, res) => {
             {new: false, upsert: false}
         );
         if (update.modifiedCount > 0 && update.matchedCount > 0) {
-            return res.status(200).json({"Message": "Project Updated Successfully"});
+            return res.status(200).json({"Message": "Project Updated Successfully","data":update});
         } else {
             return res.status(200).json({"message": "No record found"});
         }
@@ -138,12 +130,22 @@ exports.tagPortfolio = async (req, res) => {
     const {projectId} = req.params;
     const {portfolioId} = req.body;
 
+    // // pro.getIndexes(0)
+    // console.log("pro :",projectId.getIndexes(0));
+
     if (!projectId || !portfolioId) {
         return res.status(200).json({"Message": "portfolioId Id And Project Id is required"})
     }
     projectModel.findOneAndUpdate({projectId: projectId}, {portfolioId}, {new: true})
-        .then(updatedProject => {
+        .then(async updatedProject => {
             if (updatedProject) {
+
+                const updatedPortfolio = await portfolioModel.findOneAndUpdate(
+                    { portfolioId },
+                    { $push: { "projectId.ids": projectId } },
+                    { new: true }
+                );
+                console.log("updated port :",updatedPortfolio);
                 return res.status(200).json({"message": "Portfolio Successfully tagged", "data": updatedProject});
             } else {
                 res.status(200).json({"message": 'Project not found.'});
