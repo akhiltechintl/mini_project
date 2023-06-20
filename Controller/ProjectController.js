@@ -116,7 +116,7 @@ exports.deleteProject = async (req, res) => {
 
 
 exports.notAssignedProjects = async (req, res) => {
-    projectModel.find({portfolioId: {$exists: false}})
+  await  projectModel.find({portfolioId: {$exists: false}})
         .then(projects => {
             res.status(200).json({"data": projects});
         })
@@ -126,34 +126,79 @@ exports.notAssignedProjects = async (req, res) => {
 };
 
 
-exports.tagPortfolio = async (req, res) => {
-    const {projectId} = req.params;
-    const {portfolioId} = req.body;
+// exports.tagPortfolio = async (req, res) => {
+//     const {projectId} = req.params;
+//     const {portfolioId} = req.body;
+//
+//     // // pro.getIndexes(0)
+//     // console.log("pro :",projectId.getIndexes(0));
+//
+//     if (!projectId || !portfolioId) {
+//         return res.status(200).json({"Message": "portfolioId Id And Project Id is required"})
+//     }
+//     projectModel.findOneAndUpdate({projectId: projectId}, {portfolioId}, {new: true})
+//         .then(async updatedProject => {
+//             if (updatedProject) {
+//
+//                 const updatedPortfolio = await portfolioModel.findOneAndUpdate(
+//                     {portfolioId},
+//                     {$push: {"projectId.ids": {$each: projectId?.ids || []}}},
+//                     {new: true}
+//                 );
+//
+//                 // const updatedPortfolio = await portfolioModel.findOneAndUpdate(
+//                 //     { portfolioId },
+//                 //     { $push: { "projectId.ids": projectId } },
+//                 //     { new: true }
+//                 // );
+//                 console.log("updated port :",updatedPortfolio);
+//                 return res.status(200).json({"message": "Portfolio Successfully tagged", "data": updatedProject});
+//             } else {
+//                 res.status(200).json({"message": 'Project not found.'});
+//             }
+//         })
+//         .catch(error => {
+//             res.status(400).json({"error": error.message});
+//         });
+// };
 
-    // // pro.getIndexes(0)
-    // console.log("pro :",projectId.getIndexes(0));
+
+exports.tagPortfolio = async (req, res) => {
+    const { projectId } = req.body;
+    const { portfolioId } = req.params;
 
     if (!projectId || !portfolioId) {
-        return res.status(200).json({"Message": "portfolioId Id And Project Id is required"})
+        return res.status(200).json({ "Message": "portfolioId Id And Project Id is required" });
     }
-    projectModel.findOneAndUpdate({projectId: projectId}, {portfolioId}, {new: true})
-        .then(async updatedProject => {
-            if (updatedProject) {
 
+    try {
+        console.log("Entered try:");
+
+        for (let i = 0; i < projectId.ids.length; i++) {
+            console.log("Entered for:");
+
+            const existingProject = await projectModel.findOne({ projectId: projectId.ids[i] });
+            console.log("pro id :", projectId.ids[i]);
+            if (existingProject) {
+                await projectModel.findOneAndUpdate({ projectId: projectId.ids[i] }, { portfolioId }, { new: true });
+                console.log("project id :", projectId.ids[i]);
                 const updatedPortfolio = await portfolioModel.findOneAndUpdate(
                     { portfolioId },
-                    { $push: { "projectId.ids": projectId } },
+                    { $push: { "projectId.ids": projectId.ids[i] } },
                     { new: true }
                 );
-                console.log("updated port :",updatedPortfolio);
-                return res.status(200).json({"message": "Portfolio Successfully tagged", "data": updatedProject});
-            } else {
-                res.status(200).json({"message": 'Project not found.'});
+
+
+            }else {
+                return res.status(200).json({ "message": "Project not found" });
+
             }
-        })
-        .catch(error => {
-            res.status(400).json({"error": error.message});
-        });
+        }
+
+        return res.status(200).json({ "message": "Portfolio Successfully tagged" });
+    } catch (error) {
+        return res.status(400).json({ "error": error.message });
+    }
 };
 
 
