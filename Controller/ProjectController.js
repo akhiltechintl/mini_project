@@ -164,41 +164,34 @@ exports.notAssignedProjects = async (req, res) => {
 
 
 exports.tagPortfolio = async (req, res) => {
-    const { projectId } = req.body;
-    const { portfolioId } = req.params;
-
-    if (!projectId || !portfolioId) {
-        return res.status(200).json({ "Message": "portfolioId Id And Project Id is required" });
-    }
 
     try {
-        console.log("Entered try:");
-
-        for (let i = 0; i < projectId.ids.length; i++) {
-            console.log("Entered for:");
-
-            const existingProject = await projectModel.findOne({ projectId: projectId.ids[i] });
-            console.log("pro id :", projectId.ids[i]);
-            if (existingProject) {
-                await projectModel.findOneAndUpdate({ projectId: projectId.ids[i] }, { portfolioId }, { new: true });
-                console.log("project id :", projectId.ids[i]);
-                const updatedPortfolio = await portfolioModel.findOneAndUpdate(
-                    { portfolioId },
-                    { $push: { "projectId.ids": projectId.ids[i] } },
-                    { new: true }
-                );
-
-
-            }else {
-                return res.status(200).json({ "message": "Project not found" });
-
-            }
+        const {portfolioId} = req.params;
+        const {projectId} = req.body;
+        if (!portfolioId || !projectId) {
+            return res.status(200).json({"message": "Portfolio ID and Project ID is Required"})
         }
+        const updatedPortfolio = await portfolioModel.findOneAndUpdate(
+            {portfolioId},
+            {$push: {"projectId.ids": {$each: projectId?.ids || []}}},
+            {new: true}
+        );
 
-        return res.status(200).json({ "message": "Portfolio Successfully tagged" });
+
+        if (!updatedPortfolio) {
+            return res.status(200).json({"message": "Portfolio not found"});
+        }
+        else
+        {
+            projectModel.findOneAndUpdate({projectId: projectId}, {portfolioId}, {new: true})
+            res.status(200).json({"message": "Successfully added project IDs to the portfolio", "data": updatedPortfolio});
+
+        }
     } catch (error) {
-        return res.status(400).json({ "error": error.message });
+        res.status(400).send({"error": error.message});
     }
+
+
 };
 
 

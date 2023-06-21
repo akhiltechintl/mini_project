@@ -47,6 +47,23 @@ exports.getPeople = async (req, res) => {
     }
 };
 
+exports.listPeople = async (req, res) => {
+    try {
+        console.log('called get all people to html');
+
+        const people = await peopleModel.find();
+
+
+        res.render('people', { people }); // Render the people.ejs template with the people data
+
+
+        // res.status(200).json({people});
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+};
+
 
 exports.updatePeople = async (req, res) => {
     const peopleId = req.body.peopleId;

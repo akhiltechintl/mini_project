@@ -28,6 +28,28 @@ const authenticateToken = function (req, res, next) {
     }
 };
 
+
+const validateToken = function (req, res, next) {
+    const token = req.headers.authorization;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Token not found' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, secretKey);
+        req.user = decoded;
+                next();
+        }catch(error)  {
+            return res.status(403).json({ error: 'Invalid token' });
+
+
+        }
+
+
+
+};
+
 const checkRole = async (req, res, next) => {
     try {
         const { role } = req.user;
@@ -44,5 +66,5 @@ const checkRole = async (req, res, next) => {
 
 module.exports = {
     authenticateToken,
-    checkRole
+    checkRole,validateToken
 };

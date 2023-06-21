@@ -1,9 +1,10 @@
 const ProjectController = require("../controller/ProjectController");
 const express = require('express')
 const authController = require("../controller/AuthController");
-const {authenticateToken, checkRole} = require("../Middleware/JwtAuth");
+const {authenticateToken, checkRole, validateToken} = require("../Middleware/JwtAuth");
 const router = express.Router()
 
+router.use(validateToken);
 router.route("/get-all").post(ProjectController.getAll);
 router.route("/get-by-id").post(ProjectController.getById);
 
