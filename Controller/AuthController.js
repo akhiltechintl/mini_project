@@ -11,9 +11,13 @@ const router=express.Router();
 
  exports.signup=async (req,res)=>{
     const {username,email,role,password,name}=req.body;
+    if(!email||!role||!password)
+    {
+        return res.status(200).json({"message":"email,name,role & password is mandatory"})
+    }
     console.log("signup body "+ username,email,password)
     try{
-
+        const username=email;
         const existingUser=await userModel.findOne({email:email})
         console.log("existingUser ",existingUser)
         if(existingUser!=null){
@@ -70,7 +74,7 @@ exports.signin=async (req, res) => {
             const token = jwt.sign({ userId: user, role: role }, secretKey);
             console.log("Tken....")
             console.log(token)
-            return res.status(200).json({token:`${token}`,"role":role})
+            return res.status(200).json({token:`${token}`,"role":role,message: "Login Successful"})
         } else {
             return res.status(400).json({message: "invalid credentials"});
 
