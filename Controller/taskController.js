@@ -1,5 +1,8 @@
 const taskModel = require("../Models/Task");
+const projectModel = require("../Models/Project");
 
+
+//Api to add task
 exports.addTask = async (req, res) => {
 
     try {
@@ -31,7 +34,7 @@ exports.addTask = async (req, res) => {
 
 };
 
-
+//Api to update task details
 exports.updateTask = async (req, res) => {
     const taskId = req.body.taskId;
     console.log("taskId", taskId)
@@ -55,6 +58,7 @@ exports.updateTask = async (req, res) => {
     }
 };
 
+//Api to delete task by passing task Id
 
 exports.deleteTask = async (req, res) => {
     const taskId = req.params.taskId;
@@ -75,13 +79,13 @@ exports.deleteTask = async (req, res) => {
     }
 }
 
-
+//Api to get All task
 exports.getAll = async (req, res) => {
     const getAll = await taskModel.find();
     return res.status(200).json({"message": "Successfully called get", "data": getAll});
 }
 
-
+// Api to add an assignee to a task
 exports.addAssignee = (req, res) => {
     const {taskId} = req.params;
     const {assignee} = req.body;
@@ -101,7 +105,31 @@ exports.addAssignee = (req, res) => {
             res.status(400).json({"error": error.message});
         });
 };
+//api to get the details of a particular task by passing Project Id
+exports.getTaskById = async (req, res) => {
+    try {
+        const { projectId } = req.body;
+        console.log("projectId", projectId);
 
+        if (!projectId) {
+            return res.status(200).json({ "message": "Project Id is Required" });
+        }
+
+        const existingProject = await taskModel.find({ projectId: projectId });
+        console.log("body", existingProject);
+
+        if (existingProject.length > 0) {
+            console.log("exists");
+            return res.status(200).json({ "data": existingProject });
+        } else {
+            return res.status(200).json({ "message": "project not found" });
+        }
+    } catch (error) {
+        return res.status(400).json({ "error": error.message });
+    }
+};
+
+//Api to generate id for task
 
 async function generateId() {
     const lastTaskId = await taskModel.findOne({}, {}, {sort: {taskId: -1}});

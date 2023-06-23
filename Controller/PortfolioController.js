@@ -1,7 +1,7 @@
 const portfolioModel = require("../Models/Portfolio");
 const projectModel = require("../Models/Project");
 
-
+//api to portfolio details
 exports.addPortfolio = async (req, res) => {
     try {
         const portfolioId = await generateId();
@@ -24,6 +24,7 @@ exports.addPortfolio = async (req, res) => {
 
 };
 
+//api to get the details of all the portfolios
 
 exports.getAll = async (req, res) => {
     try {
@@ -35,6 +36,7 @@ exports.getAll = async (req, res) => {
     }
 }
 
+//api to update portfolio details
 
 exports.updatePortfolio = async (req, res) => {
     const portfolioId = req.body.portfolioId;
@@ -59,6 +61,7 @@ exports.updatePortfolio = async (req, res) => {
     }
 };
 
+//api to delete a portfolio by passing portfolio Id
 
 exports.deletePortfolio = async (req, res) => {
     const portfolioId = req.params.portfolioId;
@@ -120,7 +123,7 @@ exports.deletePortfolio = async (req, res) => {
 //     }
 // };
 
-
+//Function to generate Id for portfolio
 async function generateId() {
     const lastPortfolioid = await portfolioModel.findOne({}, {}, {sort: {portfolioId: -1}});
 
@@ -133,6 +136,7 @@ async function generateId() {
     return "0001";
 }
 
+//Api to add Projects to a portfolio
 
 exports.addProjectToPortfolio = async (req, res) => {
     const { projectId } = req.body;

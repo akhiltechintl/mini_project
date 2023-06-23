@@ -2,7 +2,7 @@ const projectModel = require("../Models/Project");
 const jwtAuth = require('../Middleware/jwtAuth');
 const portfolioModel = require("../Models/Portfolio");
 
-
+//api to save the project details
 exports.addProject = async (req, res) => {
             try {
                 // const latestProject = await projectModel.findOne({}, {}, { sort: { projectId: -1 } });
@@ -35,7 +35,7 @@ exports.addProject = async (req, res) => {
         }
     };
 
-
+//api to get all the projects
 exports.getAll = async (req, res) => {
 
     try {
@@ -46,7 +46,7 @@ exports.getAll = async (req, res) => {
     }
 };
 
-
+//api to update projects
 exports.update = async (req, res) => {
     const projectId = req.body.projectId;
     console.log("projectID", projectId)
@@ -70,7 +70,7 @@ exports.update = async (req, res) => {
     }
 };
 
-
+//api tp fetch particular projects by passing the project id
 exports.getById = async (req, res) => {
     try {
         const { projectId } = req.body;
@@ -94,7 +94,7 @@ exports.getById = async (req, res) => {
     }
 };
 
-
+//api to delete projects by passing project id as parameter
 exports.deleteProject = async (req, res) => {
     const {projectId} = req.params;
     console.log("pro id", projectId);
@@ -114,6 +114,7 @@ exports.deleteProject = async (req, res) => {
     }
 }
 
+//api to list the details of projects which are not tagged into a portfolio
 
 exports.notAssignedProjects = async (req, res) => {
   await  projectModel.find({portfolioId: {$exists: false}})
@@ -162,7 +163,7 @@ exports.notAssignedProjects = async (req, res) => {
 //         });
 // };
 
-
+//Api to tag portfolio
 exports.tagPortfolio = async (req, res) => {
 
     try {
@@ -194,7 +195,7 @@ exports.tagPortfolio = async (req, res) => {
 
 };
 
-
+//Api to generate id for projects
 async function generateId() {
     const lastProjectid = await projectModel.findOne({}, {}, {sort: {projectId: -1}});
 
@@ -206,6 +207,72 @@ async function generateId() {
 
     return "0001";
 }
+
+//Api to fetch  project details and task details with the use of aggregation by passing project Id
+exports.aggregateExample =async (req, res) => {
+        const { projectId } = req.body;
+
+        try {
+            const projectDetails = await projectModel.aggregate([
+                { $match: { projectId: projectId } }, // Match the project with the provided projectId
+                {
+                    $lookup: {
+                        from: 'tasks', // Collection name for project tasks
+                        localField: 'projectId',
+                        foreignField: 'projectId',
+                        as: 'tasks',
+                    },
+                },
+                {
+                    $project: {
+                        projectId: 1,
+                        status: 1,
+                        projectName: 1,
+                        projectDescription: 1,
+                        projectDuration: 1,
+                        portfolioId: 1,
+                        projectOwner: 1,
+                        projectedStartDate: 1,
+                        projectedCompletionDate: 1,
+                        'tasks.taskName': 1,
+                        'tasks.assignee': 1,
+                    },
+                },
+            ]);
+
+            if (projectDetails.length === 0) {
+                return res.status(404).json({ error: 'Project not found' });
+            }
+
+            return res.json(projectDetails[0]);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    //Api to list the projects with pagination
+
+exports.pagination= async (req, res) => {
+        const { page , limit } = req.body;
+console.log("page ",page," ",limit)
+        try {
+            const options = {
+                page: parseInt(page),
+                limit: parseInt(limit),
+            };
+
+            const projects = await projectModel.paginate({}, options);
+
+            return res.json(projects);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+
+
 
 
 

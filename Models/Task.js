@@ -8,7 +8,7 @@ const taskSchema = new Schema({
         assignee: {
             _id: { type: String},
             name: { type: String},
-            email: { type: String},
+
         },
         planHours: { type: String, required: true },
         duration: { type: Number, required: true },

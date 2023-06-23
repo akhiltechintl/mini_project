@@ -64,7 +64,7 @@ exports.listPeople = async (req, res) => {
     }
 };
 
-
+//api to update people
 exports.updatePeople = async (req, res) => {
     const peopleId = req.body.peopleId;
     console.log("peopleId", peopleId);
@@ -86,7 +86,7 @@ exports.updatePeople = async (req, res) => {
     }
 };
 
-
+//Api to list the users with access level User
 exports.getAssignee = async (req, res) => {
     try {
         const users = await peopleModel.find({accesslevel: 'User'}).select('name peopleId');
@@ -97,7 +97,7 @@ exports.getAssignee = async (req, res) => {
     }
 };
 
-
+//api to delete user by passing user id as parameter
 exports.deletePeople = async (req, res) => {
     const peopleId = req.params.peopleId;
     console.log(peopleId)

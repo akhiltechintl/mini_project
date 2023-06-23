@@ -9,6 +9,9 @@ const jwt = require('jsonwebtoken');
 const jwtAuth = require('../Middleware/jwtAuth');
 const router=express.Router();
 
+
+
+//Signup Api
  exports.signup=async (req,res)=>{
     const {username,email,role,password,name}=req.body;
     if(!email||!role||!password)
@@ -40,7 +43,7 @@ return res.status(200).json({message: "Signup successful"})
     }
 }
 
-
+//Login API with Jwt
 exports.test=async (req, res) => {
     // Call the authenticateToken middleware
     jwtAuth.authenticateToken(req, res, (error) => {
