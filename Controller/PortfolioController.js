@@ -186,3 +186,44 @@ const temp=null;
         return res.status(400).json({ "error": error.message });
     }
 };
+
+exports.multiplePortfolioDelete = async (req, res) => {
+    try {
+        const deleted=[];
+        const notDeleted=[];
+        const {portfolioIds}  = req.body;
+        // const length  = req.body.portfolioIds.length;
+        console.log("length : ",portfolioIds)
+        console.log("port : ",portfolioIds)
+        // Delete tasks matching the given task IDs
+        for(let i=0; i<portfolioIds.length; i++) {
+            const result = await portfolioModel.deleteOne({portfolioId: portfolioIds[i]});
+
+            if(result.deletedCount===1){
+                console.log(i ,"th position, deleted :", portfolioIds[i]);
+                deleted.push(portfolioIds[i]);
+            }
+            else if(result.deletedCount===0){
+                console.log(i ,"th position ,not deleted :", portfolioIds[i]);
+                notDeleted.push( portfolioIds[i]);
+                console.log("not deleted :", notDeleted[i]);
+            }
+        }
+        if (notDeleted.length===0) {
+            res.status(200).json({
+                message: 'portfolio deleted successfully.'
+            });
+        } else {
+            console.log("nottt ",notDeleted)
+            res.status(400).json({
+                message: 'Some portfolio IDs not found in the database.',
+                missingTaskIds: notDeleted,
+                deleted:deleted
+            });
+
+        } }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error deleting portfolio.' });
+    }
+};

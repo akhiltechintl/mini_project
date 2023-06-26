@@ -1,6 +1,7 @@
 const projectModel = require("../Models/Project");
 const jwtAuth = require('../Middleware/jwtAuth');
 const portfolioModel = require("../Models/Portfolio");
+const taskModel = require("../Models/Task");
 
 //api to save the project details
 exports.addProject = async (req, res) => {
@@ -209,47 +210,101 @@ async function generateId() {
 }
 
 //Api to fetch  project details and task details with the use of aggregation by passing project Id
-exports.aggregateExample =async (req, res) => {
-        const { projectId } = req.body;
+// exports.aggregateExample =async (req, res) => {
+//         const { projectId } = req.body;
+//
+//         try {
+//             const projectDetails = await projectModel.aggregate([
+//                 { $match: { projectId: projectId } }, // Match the project with the provided projectId
+//                 {
+//                     $lookup: {
+//                         from: 'tasks', // Collection name for project tasks
+//                         localField: 'projectId',
+//                         foreignField: 'projectId',
+//                         as: 'tasks',
+//                     },
+//                 },
+//                 {
+//                     $project: {
+//                         projectId: 1,
+//                         status: 1,
+//                         projectName: 1,
+//                         projectDescription: 1,
+//                         projectDuration: 1,
+//                         portfolioId: 1,
+//                         projectOwner: 1,
+//                         projectedStartDate: 1,
+//                         projectedCompletionDate: 1,
+//                         'tasks.taskName': 1,
+//                         'tasks.assignee': 1,
+//                         'tasks.taskId': 1,
+//                     },
+//                 },
+//             ]);
+//
+//             if (projectDetails.length === 0) {
+//                 return res.status(200).json({ "message": 'Project not found' });
+//             }
+//
+//             return res.json(projectDetails[0]);
+//         } catch (error) {
+//             console.error(error);
+//             return res.status(200).json({ "message": error.message });
+//         }
+//     }
 
-        try {
-            const projectDetails = await projectModel.aggregate([
-                { $match: { projectId: projectId } }, // Match the project with the provided projectId
-                {
-                    $lookup: {
-                        from: 'tasks', // Collection name for project tasks
-                        localField: 'projectId',
-                        foreignField: 'projectId',
-                        as: 'tasks',
-                    },
+exports.aggregateExample = async (req, res) => {
+    const { projectId } = req.body;
+
+    try {
+        const projectDetails = await portfolioModel.aggregate([
+            {
+                $match: {
+                    'projectId.ids': projectId
+                }
+            },
+            {
+                $unwind: '$projectId.ids'
+            },
+            {
+                $match: {
+                    'projectId.ids': projectId
+                }
+            },
+            {
+                $lookup: {
+                    from: 'tasks',
+                    localField: 'projectId.ids',
+                    foreignField: 'projectId',
+                    as: 'tasks',
                 },
-                {
-                    $project: {
-                        projectId: 1,
-                        status: 1,
-                        projectName: 1,
-                        projectDescription: 1,
-                        projectDuration: 1,
-                        portfolioId: 1,
-                        projectOwner: 1,
-                        projectedStartDate: 1,
-                        projectedCompletionDate: 1,
-                        'tasks.taskName': 1,
-                        'tasks.assignee': 1,
-                    },
+            },
+            {
+                $project: {
+                    portfolioId: 1,
+                    portfolioDescription: 1,
+                    status: 1,
+                    'portfolioManager._id': 1,
+                    'portfolioManager.name': 1,
+                    portfolioName: 1,
+                    'tasks.taskName': 1,
+                    'tasks.assignee': 1,
+                    'tasks.taskId': 1,
                 },
-            ]);
+            },
+        ]);
 
-            if (projectDetails.length === 0) {
-                return res.status(404).json({ error: 'Project not found' });
-            }
-
-            return res.json(projectDetails[0]);
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({ error: 'Server error' });
+        if (projectDetails.length === 0) {
+            return res.status(200).json({ "message": 'Project not found' });
         }
+
+        return res.json(projectDetails[0]);
+    } catch (error) {
+        console.error(error);
+        return res.status(200).json({ "message": error.message });
     }
+};
+
 
     //Api to list the projects with pagination
 
@@ -272,7 +327,49 @@ console.log("page ",page," ",limit)
     }
 
 
+exports.multipleProjectDelete = async (req, res) => {
+    try {
+        const deleted=[];
+        const notDeleted=[];
+        // const  projectIds =[];
+      const projectIds=req.params.projectIds
+            .replace('[', '')
+            .replace(']', '')
+            .split(',');
+        // projectIds.push(...req.params.projectIds.split(','));
+        console.log("path ",projectIds)
+        // Delete tasks matching the given task IDs
+        for(let i=0; i<projectIds.length; i++) {
+            const result = await projectModel.deleteOne({projectId: projectIds[i]});
 
+            if(result.deletedCount===1){
+                console.log(i ,"th position, deleted :", projectIds[i]);
+                deleted.push(projectIds[i]);
+            }
+            else if(result.deletedCount===0){
+                console.log(i ,"th position ,not deleted :", projectIds[i]);
+                notDeleted.push( projectIds[i]);
+                console.log("not deleted :", notDeleted[i]);
+            }
+        }
+        if (notDeleted.length===0) {
+            res.status(200).json({
+                message: 'Project deleted successfully.'
+            });
+        } else {
+            console.log("nottt ",notDeleted)
+            res.status(400).json({
+                message: 'Some Project IDs not found in the database.',
+                missingTaskIds: notDeleted,
+                deleted:deleted
+            });
+
+        } }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error deleting projects.' });
+    }
+};
 
 
 

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const taskSchema = new Schema({
-        taskId: { type: String, required: false },
+        taskId: { type: String, required: false,unique:true },
         status: { type: String, required: true },
         assignee: {
             _id: { type: String},

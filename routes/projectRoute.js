@@ -13,6 +13,7 @@ router.route("/page").post(ProjectController.pagination);
 router.use(authenticateToken);
 
 router.route("/add").post(ProjectController.addProject);
+router.route("/multi-delete/:projectIds").delete(ProjectController.multipleProjectDelete);
 router.route("/non-portfolio").post(ProjectController.notAssignedProjects);
 router.route("/tag-portfolio/:portfolioId").post(ProjectController.tagPortfolio);
 router.route("/update").put(ProjectController.update);

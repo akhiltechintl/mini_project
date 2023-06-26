@@ -18,5 +18,6 @@ router.use(authenticateToken);
 router.route("/add").post(controller.addPeople);
 router.route("/update").put( controller.updatePeople);
 router.route("/delete/:peopleId").delete( controller.deletePeople);
+router.route("/multi-delete").post( controller.multiplePeopleDelete);
 
 module.exports = router

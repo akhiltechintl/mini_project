@@ -1,4 +1,5 @@
 const peopleModel = require("../Models/People");
+const portfolioModel = require("../Models/Portfolio");
 
 
 //Adding People To DB
@@ -119,3 +120,44 @@ exports.deletePeople = async (req, res) => {
         return res.status(400).json({"error": err.message});
     }
 }
+
+exports.multiplePeopleDelete = async (req, res) => {
+    try {
+        const deleted=[];
+        const notDeleted=[];
+        const {peopleIds}  = req.body;
+        // const length  = req.body.peopleIds.length;
+        console.log("length : ",peopleIds)
+        console.log("port : ",peopleIds)
+        // Delete tasks matching the given task IDs
+        for(let i=0; i<peopleIds.length; i++) {
+            const result = await peopleModel.deleteOne({peopleId: peopleIds[i]});
+
+            if(result.deletedCount===1){
+                console.log(i ,"th position, deleted :", peopleIds[i]);
+                deleted.push(peopleIds[i]);
+            }
+            else if(result.deletedCount===0){
+                console.log(i ,"th position ,not deleted :", peopleIds[i]);
+                notDeleted.push( peopleIds[i]);
+                console.log("not deleted :", notDeleted[i]);
+            }
+        }
+        if (notDeleted.length===0) {
+            res.status(200).json({
+                message: 'people deleted successfully.'
+            });
+        } else {
+            console.log("nottt ",notDeleted)
+            res.status(400).json({
+                message: 'Some people not found in the database.',
+                missingTaskIds: notDeleted,
+                deleted:deleted
+            });
+
+        } }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error deleting people.' });
+    }
+};

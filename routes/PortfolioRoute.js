@@ -14,5 +14,6 @@ router.route("/add").post(PortfolioController.addPortfolio);
 router.route("/add-project/:portfolioId").post(PortfolioController.addProjectToPortfolio);
 router.route("/update").put(PortfolioController.updatePortfolio);
 router.route("/delete/:portfolioId").delete(PortfolioController.deletePortfolio);
+router.route("/multi-delete").post(PortfolioController.multiplePortfolioDelete);
 
 module.exports = router

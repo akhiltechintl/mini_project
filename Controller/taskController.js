@@ -9,9 +9,8 @@ exports.addTask = async (req, res) => {
         const taskId = await generateId();
         console.log("task id", taskId)
 
-        const task = {
+        const task = {assignee,
             status,
-            assignee,
             planHours,
             duration,
             startOn,
@@ -21,7 +20,7 @@ exports.addTask = async (req, res) => {
             createdBy,
             projectId
         } = req.body;
-
+        console.log("assignee", assignee)
         task.taskId = taskId;
 
 
@@ -128,6 +127,86 @@ exports.getTaskById = async (req, res) => {
         return res.status(400).json({ "error": error.message });
     }
 };
+
+
+// exports.multipleTaskDelete = async (req, res) => {
+//     try {
+//         const { taskIds } = req.body;
+//         console.log(taskIds.length);
+//         // Delete tasks matching the given task IDs
+//         const result = await taskModel.deleteMany({ taskId: { $in: taskIds } });
+//
+//         const { n, deletedCount } = result;
+//         console.log("result ", result);
+//
+//         if (n === taskIds.length && n === deletedCount) {
+//             console.log("entered if");
+//             res.status(200).json({ message: 'Tasks deleted successfully.' });
+//         } else {
+//             const deletedTaskIds = taskIds.filter((taskId) => {
+//                 return (
+//                     result.deletedCount &&
+//                     result.deletedCount > 0 &&
+//                     result.deletedCount === n &&
+//                     !result.writeErrors.some((err) => err.op.taskId === taskId)
+//                 );
+//             });
+//
+//             const missingTaskIds = taskIds.filter(
+//                 (taskId) => !deletedTaskIds.includes(taskId)
+//             );
+//
+//             res.status(404).json({
+//                 message: 'One or more task IDs not found in the database.',
+//                 missingTaskIds,
+//             });
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Error deleting tasks.' });
+//     }
+// };
+
+exports.multipleTaskDelete = async (req, res) => {
+    try {
+        const deleted=[];
+        const notDeleted=[];
+        const { taskIds } = req.body;
+        console.log("taskIds ", taskIds[0]);
+        // Delete tasks matching the given task IDs
+        for(let i=0;i<taskIds.length;i++) {
+            const result = await taskModel.deleteOne({taskId: taskIds[i]});
+
+          if(result.deletedCount===1){
+              console.log(i ,"th position, deleted :", taskIds[i]);
+              deleted.push(taskIds[i]);
+          }
+            else if(result.deletedCount===0){
+              console.log(i ,"th position ,not deleted :", taskIds[i]);
+                notDeleted.push( taskIds[i]);
+              console.log("not deleted :", notDeleted[i]);
+          }
+        }
+        if (notDeleted.length===0) {
+            res.status(200).json({
+                message: 'Tasks deleted successfully.'
+            });
+        } else {
+            console.log("nottt ",notDeleted)
+            res.status(400).json({
+                message: 'Some task IDs not found in the database.',
+                missingTaskIds: notDeleted,
+                deleted:deleted
+            });
+
+    } }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error deleting tasks.' });
+    }
+};
+
+
 
 //Api to generate id for task
 

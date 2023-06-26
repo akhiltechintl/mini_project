@@ -13,6 +13,7 @@ router.use(authenticateToken);
 router.route("/update-task").put(controller.updateTask)
 router.route("/add-assignee/:taskId").put(controller.addAssignee)
 router.route("/delete-task/:taskId").delete(controller.deleteTask)
+router.route("/multiple-task-delete").post(controller.multipleTaskDelete)
 router.route("/add-task").post(controller.addTask);
 
 
