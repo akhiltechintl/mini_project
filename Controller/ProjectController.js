@@ -210,100 +210,95 @@ async function generateId() {
 }
 
 //Api to fetch  project details and task details with the use of aggregation by passing project Id
-// exports.aggregateExample =async (req, res) => {
-//         const { projectId } = req.body;
-//
-//         try {
-//             const projectDetails = await projectModel.aggregate([
-//                 { $match: { projectId: projectId } }, // Match the project with the provided projectId
-//                 {
-//                     $lookup: {
-//                         from: 'tasks', // Collection name for project tasks
-//                         localField: 'projectId',
-//                         foreignField: 'projectId',
-//                         as: 'tasks',
-//                     },
-//                 },
-//                 {
-//                     $project: {
-//                         projectId: 1,
-//                         status: 1,
-//                         projectName: 1,
-//                         projectDescription: 1,
-//                         projectDuration: 1,
-//                         portfolioId: 1,
-//                         projectOwner: 1,
-//                         projectedStartDate: 1,
-//                         projectedCompletionDate: 1,
-//                         'tasks.taskName': 1,
-//                         'tasks.assignee': 1,
-//                         'tasks.taskId': 1,
-//                     },
-//                 },
-//             ]);
-//
-//             if (projectDetails.length === 0) {
-//                 return res.status(200).json({ "message": 'Project not found' });
-//             }
-//
-//             return res.json(projectDetails[0]);
-//         } catch (error) {
-//             console.error(error);
-//             return res.status(200).json({ "message": error.message });
-//         }
-//     }
+exports.aggregateExample =async (req, res) => {
+        const { projectId } = req.body;
 
-exports.aggregateExample = async (req, res) => {
-    const { projectId } = req.body;
-
-    try {
-        const projectDetails = await portfolioModel.aggregate([
-            {
-                $match: {
-                    'projectId.ids': projectId
-                }
-            },
-            {
-                $unwind: '$projectId.ids'
-            },
-            {
-                $match: {
-                    'projectId.ids': projectId
-                }
-            },
-            {
-                $lookup: {
-                    from: 'tasks',
-                    localField: 'projectId.ids',
-                    foreignField: 'projectId',
-                    as: 'tasks',
+        try {
+            const projectDetails = await projectModel.aggregate([
+                { $match: { projectId: projectId } }, // Match the project with the provided projectId
+                {
+                    $lookup: {
+                        from: 'projects', // Collection name for project tasks
+                        localField: 'portfolioId',
+                        foreignField: 'portfolioId',
+                        as: 'projects',
+                    },
                 },
-            },
-            {
-                $project: {
-                    portfolioId: 1,
-                    portfolioDescription: 1,
-                    status: 1,
-                    'portfolioManager._id': 1,
-                    'portfolioManager.name': 1,
-                    portfolioName: 1,
-                    'tasks.taskName': 1,
-                    'tasks.assignee': 1,
-                    'tasks.taskId': 1,
+                {
+                    $portfolio: {
+                        portfolioId: 1,
+                        status: 1,
+                        portfolioDescription: 1,
+                        portfolioName: 1,
+                        portfolioManager: 1,
+                        'projects.projectName': 1,
+                        'projects.projectId': 1,
+                    },
                 },
-            },
-        ]);
+            ]);
 
-        if (projectDetails.length === 0) {
-            return res.status(200).json({ "message": 'Project not found' });
+            if (projectDetails.length === 0) {
+                return res.status(200).json({ "message": 'Project not found' });
+            }
+
+            return res.json(projectDetails[0]);
+        } catch (error) {
+            console.error(error);
+            return res.status(200).json({ "message": error.message });
         }
-
-        return res.json(projectDetails[0]);
-    } catch (error) {
-        console.error(error);
-        return res.status(200).json({ "message": error.message });
     }
-};
+
+// exports.aggregateExample = async (req, res) => {
+//     const { projectId } = req.body;
+//
+//     try {
+//         const projectDetails = await portfolioModel.aggregate([
+//             {
+//                 $match: {
+//                     'projectId.ids': projectId
+//                 }
+//             },
+//             {
+//                 $unwind: '$projectId.ids'
+//             },
+//             {
+//                 $match: {
+//                     'projectId.ids': projectId
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: 'tasks',
+//                     localField: 'projectId.ids',
+//                     foreignField: 'projectId',
+//                     as: 'tasks',
+//                 },
+//             },
+//             {
+//                 $project: {
+//                     portfolioId: 1,
+//                     portfolioDescription: 1,
+//                     status: 1,
+//                     'portfolioManager._id': 1,
+//                     'portfolioManager.name': 1,
+//                     portfolioName: 1,
+//                     'tasks.taskName': 1,
+//                     'tasks.assignee': 1,
+//                     'tasks.taskId': 1,
+//                 },
+//             },
+//         ]);
+//
+//         if (projectDetails.length === 0) {
+//             return res.status(200).json({ "message": 'Project not found' });
+//         }
+//
+//         return res.json(projectDetails[0]);
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(200).json({ "message": error.message });
+//     }
+// };
 
 
     //Api to list the projects with pagination

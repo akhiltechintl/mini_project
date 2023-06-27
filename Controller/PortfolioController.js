@@ -227,3 +227,96 @@ exports.multiplePortfolioDelete = async (req, res) => {
         res.status(500).json({ message: 'Error deleting portfolio.' });
     }
 };
+
+
+// exports.aggregateExample = async (req, res) => {
+//     const { projectId } = req.body;
+//
+//     try {
+//         const projectDetails = await projectModel.aggregate([
+//
+//             {
+//                 $lookup: {
+//                     from: 'projects',
+//                     localField: 'portfolioId',
+//                     foreignField: 'portfolioId',
+//                     as: 'portfolioId',
+//                 },
+//             },
+//             {
+//                 $project: {
+//                     portfolioId: 1,
+//                     portfolioDescription: 1,
+//                     status: 1,
+//                     'portfolioManager._id': 1,
+//                     'portfolioManager.name': 1,
+//                     portfolioName: 1,
+//                     'tasks.taskName': 1,
+//                     'tasks.assignee': 1,
+//                     'tasks.taskId': 1,
+//                 },
+//             },
+//         ]);
+//
+//         if (projectDetails.length === 0) {
+//             return res.status(200).json({ "message": 'Project not found' });
+//         }
+//
+//         return res.json(projectDetails[0]);
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(200).json({ "message": error.message });
+//     }
+// };
+
+// exports.aggregate=async (req,res)=>{
+//     try {
+//         const {portfolioId} = req.body;
+//         const existing = await portfolioModel.find({ portfolioId: portfolioId });
+//         return res.status(200).json({body:existing})
+// }catch (err){
+//         return res.status(200).json({error:err.message})
+//
+//     }
+// }
+exports.aggregate = async (req, res) => {
+    try {
+        const { portfolioId } = req.body;
+
+        const result = await portfolioModel.aggregate([
+            {
+                $match: { portfolioId: portfolioId }
+            },
+            {
+                $lookup: {
+                    from: "projects",
+                    let: { portfolioId: "$portfolioId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$portfolioId", "$$portfolioId"]
+                                }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                projectName: 1,
+                                projectId: 1,
+                                projectOwner: 1,
+                                projectDescription: 1
+                            }
+                        }
+                    ],
+                    as: "projects"
+                }
+            }
+        ]);
+
+        return res.status(200).json({ body: result });
+    } catch (err) {
+        return res.status(200).json({ error: err.message });
+    }
+};
+
