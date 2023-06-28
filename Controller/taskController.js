@@ -85,48 +85,48 @@ exports.getAll = async (req, res) => {
 }
 
 // Api to add an assignee to a task
-exports.addAssignee = (req, res) => {
-    const {taskId} = req.params;
-    const {assignee} = req.body;
-
-    if (!taskId || !assignee) {
-        return res.status(200).json({"Message": "Task Id And Assignee Id is required"})
-    }
-    taskModel.findOneAndUpdate({taskId: taskId}, {assignee}, {new: true})
-        .then(updatedTask => {
-            if (updatedTask) {
-                return res.status(200).json({"message": "Assignee Successfully tagged to Task", "data": updatedTask});
-            } else {
-                res.status(200).json({"message": 'Task not found.'});
-            }
-        })
-        .catch(error => {
-            res.status(400).json({"error": error.message});
-        });
-};
+// exports.addAssignee = (req, res) => {
+//     const {taskId} = req.params;
+//     const {assignee} = req.body;
+//
+//     if (!taskId || !assignee) {
+//         return res.status(200).json({"Message": "Task Id And Assignee Id is required"})
+//     }
+//     taskModel.findOneAndUpdate({taskId: taskId}, {assignee}, {new: true})
+//         .then(updatedTask => {
+//             if (updatedTask) {
+//                 return res.status(200).json({"message": "Assignee Successfully tagged to Task", "data": updatedTask});
+//             } else {
+//                 res.status(200).json({"message": 'Task not found.'});
+//             }
+//         })
+//         .catch(error => {
+//             res.status(400).json({"error": error.message});
+//         });
+// };
 //api to get the details of a particular task by passing Project Id
-exports.getTaskById = async (req, res) => {
-    try {
-        const { projectId } = req.body;
-        console.log("projectId", projectId);
-
-        if (!projectId) {
-            return res.status(200).json({ "message": "Project Id is Required" });
-        }
-
-        const existingProject = await taskModel.find({ projectId: projectId });
-        console.log("body", existingProject);
-
-        if (existingProject.length > 0) {
-            console.log("exists");
-            return res.status(200).json({ "data": existingProject });
-        } else {
-            return res.status(200).json({ "message": "project not found" });
-        }
-    } catch (error) {
-        return res.status(400).json({ "error": error.message });
-    }
-};
+// exports.getTaskById = async (req, res) => {
+//     try {
+//         const { projectId } = req.body;
+//         console.log("projectId", projectId);
+//
+//         if (!projectId) {
+//             return res.status(200).json({ "message": "Project Id is Required" });
+//         }
+//
+//         const existingProject = await taskModel.find({ projectId: projectId });
+//         console.log("body", existingProject);
+//
+//         if (existingProject.length > 0) {
+//             console.log("exists");
+//             return res.status(200).json({ "data": existingProject });
+//         } else {
+//             return res.status(200).json({ "message": "project not found" });
+//         }
+//     } catch (error) {
+//         return res.status(400).json({ "error": error.message });
+//     }
+// };
 
 
 // exports.multipleTaskDelete = async (req, res) => {
@@ -206,7 +206,59 @@ exports.multipleTaskDelete = async (req, res) => {
     }
 };
 
+exports.getById = async (req, res) => {
+    try {
+        const {taskId} = req.body;
+if(!taskId){
+    return res.status(400).json({message:"task Id not found"})
+}
+        // Fetch the task with the provided taskId
+        const task = await taskModel.aggregate([
+            {
+                $match: { taskId: taskId }
+            },
+            {
+                $lookup: {
+                    from: 'projects',
+                    localField: 'projectId',
+                    foreignField: 'projectId',
+                    as: 'project'
+                }
+            },
+            {
+                $unwind: '$project'
+            },
+            {
+                $project: {
+                    assignee: 1,
+                    createdBy: 1,
+                    _id: 1,
+                    taskId: 1,
+                    status: 1,
+                    planHours: 1,
+                    duration: 1,
+                    startOn: 1,
+                    dueOn: 1,
+                    taskName: 1,
+                    description: 1,
+                    'project.projectId': '$project.projectId',
+                    'project.projectName': '$project.projectName',
+                    createdAt: 1,
+                    updatedAt: 1,
+                    __v: 1
+                }
+            }
+        ]);
 
+        if (!task || task.length === 0) {
+            return res.status(200).json({ message: 'Task not found' });
+        }
+
+        res.status(200).json({data:task});
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
 
 //Api to generate id for task
 
@@ -222,3 +274,43 @@ async function generateId() {
     return "0001";
 }
 
+// exports.addAssignee = (req, res) => {
+//     const { taskId } = req.params;
+//     const { assignee } = req.body;
+//
+//     if (!taskId || !assignee) {
+//         return res.status(200).json({ "Message": "Task Id and Assignee Id are required" });
+//     }
+//
+//     taskModel.findOneAndUpdate({ taskId: taskId }, { $push: { assignee: { $each: assignee } } }, { new: true })
+//         .then(updatedTask => {
+//             if (updatedTask) {
+//                 return res.status(200).json({ "message": "Assignees successfully added to the task", "data": updatedTask });
+//             } else {
+//                 res.status(200).json({ "message": 'Task not found.' });
+//             }
+//         })
+//         .catch(error => {
+//             res.status(400).json({ "error": error.message });
+//         });
+// };
+
+exports.addAssignee = (req, res) => {
+    const {taskId} = req.params;
+    const {assignee} = req.body;
+
+    if (!taskId || !assignee) {
+        return res.status(200).json({"Message": "Task Id And Assignee Id is required"})
+    }
+    taskModel.findOneAndUpdate({taskId: taskId}, {assignee}, {new: true})
+        .then(updatedTask => {
+            if (updatedTask) {
+                return res.status(200).json({"message": "Assignee Successfully tagged to Task", "data": updatedTask});
+            } else {
+                res.status(200).json({"message": 'Task not found.'});
+            }
+        })
+        .catch(error => {
+            res.status(400).json({"error": error.message});
+        });
+};

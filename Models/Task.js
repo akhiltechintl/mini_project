@@ -5,11 +5,11 @@ const { Schema } = mongoose;
 const taskSchema = new Schema({
         taskId: { type: String, required: false,unique:true },
         status: { type: String, required: true },
-        assignee: {
+        assignee: [{
             _id: { type: String},
             name: { type: String},
 
-        },
+        }],
         planHours: { type: String, required: true },
         duration: { type: Number, required: true },
         startOn: { type: String, required: true },

@@ -72,28 +72,28 @@ exports.update = async (req, res) => {
 };
 
 //api tp fetch particular projects by passing the project id
-exports.getById = async (req, res) => {
-    try {
-        const { projectId } = req.body;
-        console.log("projectId", projectId);
-
-        if (!projectId) {
-            return res.status(200).json({ "message": "Project Id is Required" });
-        }
-
-        const existingProject = await projectModel.find({ projectId: projectId });
-        console.log("body", existingProject);
-
-        if (existingProject.length > 0) {
-            console.log("exists");
-            return res.status(200).json({ "data": existingProject });
-        } else {
-            return res.status(200).json({ "message": "project not found" });
-        }
-    } catch (error) {
-        return res.status(400).json({ "error": error.message });
-    }
-};
+// exports.getById = async (req, res) => {
+//     try {
+//         const { projectId } = req.body;
+//         console.log("projectId", projectId);
+//
+//         if (!projectId) {
+//             return res.status(200).json({ "message": "Project Id is Required" });
+//         }
+//
+//         const existingProject = await projectModel.find({ projectId: projectId });
+//         console.log("body", existingProject);
+//
+//         if (existingProject.length > 0) {
+//             console.log("exists");
+//             return res.status(200).json({ "data": existingProject });
+//         } else {
+//             return res.status(200).json({ "message": "project not found" });
+//         }
+//     } catch (error) {
+//         return res.status(400).json({ "error": error.message });
+//     }
+// };
 
 //api to delete projects by passing project id as parameter
 exports.deleteProject = async (req, res) => {
@@ -211,63 +211,135 @@ async function generateId() {
 
 //Api to fetch  project details and task details with the use of aggregation by passing project Id
 
-exports.aggregateExample = async (req, res) => {
-    const { projectId } = req.body;
+// exports.aggregateExample = async (req, res) => {
+//     const { projectId } = req.body;
+//
+//     try {
+//         const projectDetails = await portfolioModel.aggregate([
+//             {
+//                 $match: {
+//                     'projectId.ids': projectId
+//                 }
+//             },
+//             {
+//                 $unwind: '$projectId.ids'
+//             },
+//             {
+//                 $match: {
+//                     'projectId.ids': projectId
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: 'tasks',
+//                     localField: 'projectId.ids',
+//                     foreignField: 'projectId',
+//                     as: 'tasks',
+//                 },
+//             },
+//             {
+//                 $project: {
+//                     portfolioId: 1,
+//                     portfolioDescription: 1,
+//                     status: 1,
+//                     'portfolioManager._id': 1,
+//                     'portfolioManager.name': 1,
+//                     portfolioName: 1,
+//                     'tasks.taskName': 1,
+//                     'tasks.assignee': 1,
+//                     'tasks.taskId': 1,
+//                 },
+//             },
+//         ]);
+//
+//         if (projectDetails.length === 0) {
+//             return res.status(200).json({ "message": 'Project not found' });
+//         }
+//
+//         return res.json(projectDetails[0]);
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(200).json({ "message": error.message });
+//     }
+// };
 
+
+exports.getById = async (req, res) => {
     try {
-        const projectDetails = await portfolioModel.aggregate([
+
+        const { projectId } = req.body;
+        console.log(projectId)
+        if(!projectId){
+            return res.status(200).json({message:"project Id not found"})
+        }
+
+        const project = await projectModel.aggregate([
             {
-                $match: {
-                    'projectId.ids': projectId
-                }
-            },
-            {
-                $unwind: '$projectId.ids'
-            },
-            {
-                $match: {
-                    'projectId.ids': projectId
-                }
+                $match: { projectId }
             },
             {
                 $lookup: {
-                    from: 'tasks',
-                    localField: 'projectId.ids',
-                    foreignField: 'projectId',
-                    as: 'tasks',
-                },
+                    from: "portfolios",
+                    localField: "projectId",
+                    foreignField: "projectId.ids",
+                    as: "portfolio"
+                }
+            },
+            {
+
+                $unwind: { path: "$portfolio", preserveNullAndEmptyArrays: true }
+                // $unwind: "$portfolio"
+            },
+            {
+                $lookup: {
+                    from: "tasks",
+                    localField: "projectId",
+                    foreignField: "projectId",
+                    as: "tasks"
+                }
             },
             {
                 $project: {
-                    portfolioId: 1,
-                    portfolioDescription: 1,
+                    _id: 1,
+                    projectId: 1,
                     status: 1,
-                    'portfolioManager._id': 1,
-                    'portfolioManager.name': 1,
-                    portfolioName: 1,
-                    'tasks.taskName': 1,
-                    'tasks.assignee': 1,
-                    'tasks.taskId': 1,
-                },
-            },
+                    projectName: 1,
+                    projectDescription: 1,
+                    projectDuration: 1,
+                    projectOwner: 1,
+                    projectedStartDate: 1,
+                    projectedCompletionDate: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    __v: 1,
+                    tasks: {
+                        taskId: 1,
+                        taskName: 1
+                    },portfolio:{
+                        portfolioId: "$portfolio.portfolioId",
+                        portfolioName: "$portfolio.portfolioName"
+                    }
+                }
+            }
         ]);
 
-        if (projectDetails.length === 0) {
-            return res.status(200).json({ "message": 'Project not found' });
+        if (project.length === 0) {
+            return res.status(200).json({ message: 'Project not found' });
         }
 
-        return res.json(projectDetails[0]);
+        res.status(200).json({ project: project[0] });
     } catch (error) {
-        console.error(error);
-        return res.status(200).json({ "message": error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
-
     //Api to list the projects with pagination
 
-exports.pagination= async (req, res) => {
+exports.getWithPagination= async (req, res) => {
         const { page , limit } = req.body;
+    if(!page || !limit){
+        return res.status(200).json({message:"page and limit not found"})
+    }
 console.log("page ",page," ",limit)
         try {
             const options = {
@@ -277,10 +349,10 @@ console.log("page ",page," ",limit)
 
             const projects = await projectModel.paginate({}, options);
 
-            return res.json(projects);
+            return res.status(200).json({"data":projects});
         } catch (error) {
             console.error(error);
-            return res.status(500).json({ error: 'Server error' });
+            return res.status(400).json({ error: error.message });
         }
     }
 
@@ -294,6 +366,9 @@ exports.multipleProjectDelete = async (req, res) => {
             .replace('[', '')
             .replace(']', '')
             .split(',');
+      if(!projectIds){
+          return res.status(200).json({message:"project Id not found"})
+      }
         // projectIds.push(...req.params.projectIds.split(','));
         console.log("path ",projectIds)
         // Delete tasks matching the given task IDs
@@ -316,7 +391,7 @@ exports.multipleProjectDelete = async (req, res) => {
             });
         } else {
             console.log("nottt ",notDeleted)
-            res.status(400).json({
+            res.status(200).json({
                 message: 'Some Project IDs not found in the database.',
                 missingTaskIds: notDeleted,
                 deleted:deleted
@@ -325,7 +400,7 @@ exports.multipleProjectDelete = async (req, res) => {
         } }
     catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error deleting projects.' });
+        res.status(400).json({ message: 'Error deleting projects.' });
     }
 };
 

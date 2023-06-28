@@ -6,11 +6,11 @@ const router = express.Router()
 const app = express();
 app.set('view engine', 'ejs');
 
-router.route("/get-all").get(controller.getPeople);
-router.get('/list-all', controller.listPeople);
+
 router.use(validateToken);
 
-
+router.route("/get-all").post(controller.getPeople);
+router.get('/list-all', controller.listPeople);
 router.route("/get-assignee").post(controller.getAssignee);
 
 router.use(authenticateToken);

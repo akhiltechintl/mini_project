@@ -6,7 +6,8 @@ const router = express.Router()
 
 router.use(validateToken);
 router.route("/get-all").post(controller.getAll);
-router.route("/get-by-id").post(controller.getTaskById);
+// router.route("/get-by-id").post(controller.getTaskById);
+router.route("/get-task-by-id").post(controller.getById);
 
 router.use(authenticateToken);
 
