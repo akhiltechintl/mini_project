@@ -104,29 +104,30 @@ exports.getAll = async (req, res) => {
 //             res.status(400).json({"error": error.message});
 //         });
 // };
+
 //api to get the details of a particular task by passing Project Id
-// exports.getTaskById = async (req, res) => {
-//     try {
-//         const { projectId } = req.body;
-//         console.log("projectId", projectId);
-//
-//         if (!projectId) {
-//             return res.status(200).json({ "message": "Project Id is Required" });
-//         }
-//
-//         const existingProject = await taskModel.find({ projectId: projectId });
-//         console.log("body", existingProject);
-//
-//         if (existingProject.length > 0) {
-//             console.log("exists");
-//             return res.status(200).json({ "data": existingProject });
-//         } else {
-//             return res.status(200).json({ "message": "project not found" });
-//         }
-//     } catch (error) {
-//         return res.status(400).json({ "error": error.message });
-//     }
-// };
+ exports.getTaskById = async (req, res) => {
+     try {
+         const { projectId } = req.body;
+         console.log("projectId", projectId);
+
+         if (!projectId) {
+             return res.status(200).json({ "message": "Project Id is Required" });
+         }
+
+         const existingProject = await taskModel.find({ projectId: projectId });
+         console.log("body", existingProject);
+
+         if (existingProject.length > 0) {
+             console.log("exists");
+             return res.status(200).json({ "data": existingProject });
+         } else {
+             return res.status(200).json({ "message": "project not found" });
+         }
+     } catch (error) {
+         return res.status(400).json({ "error": error.message });
+     }
+ };
 
 
 // exports.multipleTaskDelete = async (req, res) => {

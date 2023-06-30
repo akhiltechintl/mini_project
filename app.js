@@ -17,8 +17,8 @@ app.use(cors(corsOptions));
 
 
 
-// mongoose.connect("mongodb+srv://akhilnmptf:zxDdPDUt1XXz80Jp@cluster0.ygch4vp.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.connect("mongodb://0.0.0.0:27017/workluge", { useNewUrlParser: true, useUnifiedTopology: true });
+ mongoose.connect("mongodb+srv://akhilnmptf:zxDdPDUt1XXz80Jp@cluster0.ygch4vp.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+//mongoose.connect("mongodb://0.0.0.0:27017/workluge", { useNewUrlParser: true, useUnifiedTopology: true });
 
 
 app.use('/api/auth', require('./routes/Authroute.js'));

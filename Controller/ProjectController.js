@@ -72,28 +72,28 @@ exports.update = async (req, res) => {
 };
 
 //api tp fetch particular projects by passing the project id
-// exports.getById = async (req, res) => {
-//     try {
-//         const { projectId } = req.body;
-//         console.log("projectId", projectId);
-//
-//         if (!projectId) {
-//             return res.status(200).json({ "message": "Project Id is Required" });
-//         }
-//
-//         const existingProject = await projectModel.find({ projectId: projectId });
-//         console.log("body", existingProject);
-//
-//         if (existingProject.length > 0) {
-//             console.log("exists");
-//             return res.status(200).json({ "data": existingProject });
-//         } else {
-//             return res.status(200).json({ "message": "project not found" });
-//         }
-//     } catch (error) {
-//         return res.status(400).json({ "error": error.message });
-//     }
-// };
+ exports.getId = async (req, res) => {
+     try {
+         const { projectId } = req.body;
+         console.log("projectId", projectId);
+
+         if (!projectId) {
+             return res.status(200).json({ "message": "Project Id is Required" });
+         }
+
+         const existingProject = await projectModel.find({ projectId: projectId });
+         console.log("body", existingProject);
+
+         if (existingProject.length > 0) {
+             console.log("exists");
+             return res.status(200).json({ "data": existingProject });
+         } else {
+             return res.status(200).json({ "message": "project not found" });
+         }
+     } catch (error) {
+         return res.status(400).json({ "error": error.message });
+     }
+ };
 
 //api to delete projects by passing project id as parameter
 exports.deleteProject = async (req, res) => {
