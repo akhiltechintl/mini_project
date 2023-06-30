@@ -7,7 +7,9 @@ const app = express();
 app.set('view engine', 'ejs');
 
 
+router.route("/get-table").get(controller.getTable);
 router.use(validateToken);
+
 
 router.route("/get-all").post(controller.getPeople);
 router.get('/list-all', controller.listPeople);

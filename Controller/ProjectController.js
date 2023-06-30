@@ -406,5 +406,17 @@ exports.multipleProjectDelete = async (req, res) => {
 
 
 
+exports.getTable= async (req, res) => {
+    try {
+        // Fetch projects from the database (assuming you're using Mongoose)
+        const projects = await projectModel.find();
+        console.log("table:",projects)
 
+        // Render the project.ejs file with the projects data
+        res.render('project', { projects });
+    } catch (error) {
+        // Handle error appropriately
+        res.status(500).send('Internal Server Error');
+    }
+};
 

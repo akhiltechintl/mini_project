@@ -4,9 +4,13 @@ const authController = require("../controller/AuthController");
 const {authenticateToken, checkRole, validateToken} = require("../Middleware/JwtAuth");
 const router = express.Router()
 
+
+
+
+router.route("/get-table").get(ProjectController.getTable);
 router.use(validateToken);
 router.route("/get-all").post(ProjectController.getAll);
- router.route("/get-id").post(ProjectController.getId);
+router.route("/get-id").post(ProjectController.getId);
 router.route("/get-by-id").post(ProjectController.getById);
 router.route("/get-with-page").post(ProjectController.getWithPagination);
 

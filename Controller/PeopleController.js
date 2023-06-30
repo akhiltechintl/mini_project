@@ -1,5 +1,6 @@
 const peopleModel = require("../Models/People");
 const portfolioModel = require("../Models/Portfolio");
+const taskModel = require("../Models/Task");
 
 
 //Adding People To DB
@@ -159,5 +160,19 @@ exports.multiplePeopleDelete = async (req, res) => {
     catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error deleting people.' });
+    }
+};
+
+exports.getTable= async (req, res) => {
+    try {
+        // Fetch projects from the database (assuming you're using Mongoose)
+        const peoples = await peopleModel.find();
+        console.log("table:",peoples)
+
+        // Render the project.ejs file with the projects data
+        res.render('people', { peoples });
+    } catch (error) {
+        // Handle error appropriately
+        res.status(400).send(error.message);
     }
 };

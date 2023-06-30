@@ -315,3 +315,17 @@ exports.addAssignee = (req, res) => {
             res.status(400).json({"error": error.message});
         });
 };
+
+exports.getTable= async (req, res) => {
+    try {
+        // Fetch projects from the database (assuming you're using Mongoose)
+        const tasks = await taskModel.find();
+        console.log("table:",tasks)
+
+        // Render the project.ejs file with the projects data
+        res.render('task', { tasks });
+    } catch (error) {
+        // Handle error appropriately
+        res.status(400).send(error.message);
+    }
+};

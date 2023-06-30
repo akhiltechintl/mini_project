@@ -1,5 +1,6 @@
 const portfolioModel = require("../Models/Portfolio");
 const projectModel = require("../Models/Project");
+const taskModel = require("../Models/Task");
 
 //api to portfolio details
 exports.addPortfolio = async (req, res) => {
@@ -320,3 +321,16 @@ exports.aggregate = async (req, res) => {
     }
 };
 
+exports.getTable= async (req, res) => {
+    try {
+        // Fetch projects from the database (assuming you're using Mongoose)
+        const portfolios = await portfolioModel.find();
+        console.log("portfolio:",portfolios)
+
+        // Render the project.ejs file with the projects data
+        res.render('portfolio', { portfolios });
+    } catch (error) {
+        // Handle error appropriately
+        res.status(400).send(error.message);
+    }
+};

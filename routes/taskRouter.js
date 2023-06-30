@@ -4,6 +4,8 @@ const authController = require("../controller/AuthController");
 const {authenticateToken, checkRole, validateToken} = require("../Middleware/JwtAuth");
 const router = express.Router()
 
+
+router.route("/get-table").get(controller.getTable);
 router.use(validateToken);
 router.route("/get-all").post(controller.getAll);
  router.route("/get-by-id").post(controller.getTaskById);
