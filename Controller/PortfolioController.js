@@ -321,7 +321,7 @@ exports.aggregate = async (req, res) => {
     }
 };
 
-exports.getTable= async (req, res) => {
+exports.getPortfolioList= async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
         const portfolios = await portfolioModel.find();

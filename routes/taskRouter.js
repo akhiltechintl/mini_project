@@ -5,7 +5,7 @@ const {authenticateToken, checkRole, validateToken} = require("../Middleware/Jwt
 const router = express.Router()
 
 
-router.route("/get-table").get(controller.getTable);
+router.route("/get-task-list").get(controller.getTaskList);
 router.use(validateToken);
 router.route("/get-all").post(controller.getAll);
  router.route("/get-by-id").post(controller.getTaskById);

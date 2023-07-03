@@ -7,7 +7,7 @@ const router = express.Router()
 
 
 
-router.route("/get-table").get(ProjectController.getTable);
+router.route("/get-project-list").get(ProjectController.getProjectList);
 router.use(validateToken);
 router.route("/get-all").post(ProjectController.getAll);
 router.route("/get-id").post(ProjectController.getId);

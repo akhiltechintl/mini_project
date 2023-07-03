@@ -163,7 +163,7 @@ exports.multiplePeopleDelete = async (req, res) => {
     }
 };
 
-exports.getTable= async (req, res) => {
+exports.getPeopleList= async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
         const peoples = await peopleModel.find();

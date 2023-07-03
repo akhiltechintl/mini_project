@@ -14,7 +14,7 @@ const router=express.Router();
 //Signup Api
  exports.signup=async (req,res)=>{
     const {username,email,role,password,name}=req.body;
-    if(!email||!role||!password)
+    if(!email||!role||!password||!username)
     {
         return res.status(200).json({"message":"email,name,role & password is mandatory"})
     }

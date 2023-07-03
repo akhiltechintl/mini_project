@@ -4,7 +4,7 @@ const authController = require("../controller/AuthController");
 const {authenticateToken, checkRole, validateToken} = require("../Middleware/JwtAuth");
 const router = express.Router()
 
-router.route("/get-table").get(PortfolioController.getTable);
+router.route("/get-portfolio-list").get(PortfolioController.getPortfolioList);
 
 router.use(validateToken);
 router.route("/get-all").post(PortfolioController.getAll);

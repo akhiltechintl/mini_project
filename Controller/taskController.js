@@ -316,7 +316,7 @@ exports.addAssignee = (req, res) => {
         });
 };
 
-exports.getTable= async (req, res) => {
+exports.getTaskList= async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
         const tasks = await taskModel.find();

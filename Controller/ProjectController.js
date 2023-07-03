@@ -264,31 +264,96 @@ async function generateId() {
 // };
 
 
+// exports.getById = async (req, res) => {
+//     try {
+//
+//         const { projectId } = req.body;
+//         console.log(projectId)
+//         if(!projectId){
+//             return res.status(200).json({message:"project Id not found"})
+//         }
+//
+//         const project = await projectModel.aggregate([
+//             {
+//                 $match: { projectId }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "portfolios",
+//                     localField: "projectId",
+//                     foreignField: "projectId.ids",
+//                     as: "portfolio"
+//                 }
+//             },
+//             {
+//
+//                 $unwind: { path: "$portfolio", preserveNullAndEmptyArrays: true }
+//                 // $unwind: "$portfolio"
+//             },
+//             {
+//                 $lookup: {
+//                     from: "tasks",
+//                     localField: "projectId",
+//                     foreignField: "projectId",
+//                     as: "tasks"
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     _id: 1,
+//                     projectId: 1,
+//                     status: 1,
+//                     projectName: 1,
+//                     projectDescription: 1,
+//                     projectDuration: 1,
+//                     projectOwner: 1,
+//                     projectedStartDate: 1,
+//                     projectedCompletionDate: 1,
+//                     createdAt: 1,
+//                     updatedAt: 1,
+//                     __v: 1,
+//                     tasks: {
+//                         taskId: 1,
+//                         taskName: 1
+//                     },portfolio:{
+//                         portfolioId: "$portfolio.portfolioId",
+//                         portfolioName: "$portfolio.portfolioName"
+//                     }
+//                 }
+//             }
+//         ]);
+//
+//         if (project.length === 0) {
+//             return res.status(200).json({ message: 'Project not found' });
+//         }
+//
+//         res.status(200).json({ project: project[0] });
+//     } catch (error) {
+//         res.status(400).json({ message: error.message });
+//     }
+// };
+
+
 exports.getById = async (req, res) => {
     try {
-
+        console.log('called get single project by id');
         const { projectId } = req.body;
-        console.log(projectId)
-        if(!projectId){
-            return res.status(200).json({message:"project Id not found"})
-        }
+        console.log(projectId);
 
         const project = await projectModel.aggregate([
             {
-                $match: { projectId }
+                $match: { projectId } // Filter projects by projectId
             },
             {
                 $lookup: {
                     from: "portfolios",
-                    localField: "projectId",
-                    foreignField: "projectId.ids",
+                    localField: "portfolioId",
+                    foreignField: "portfolioId",
                     as: "portfolio"
                 }
             },
             {
-
-                $unwind: { path: "$portfolio", preserveNullAndEmptyArrays: true }
-                // $unwind: "$portfolio"
+                $unwind: "$portfolio"
             },
             {
                 $lookup: {
@@ -307,6 +372,8 @@ exports.getById = async (req, res) => {
                     projectDescription: 1,
                     projectDuration: 1,
                     projectOwner: 1,
+                    portfolioId: "$portfolio.portfolioId",
+                    portfolioName: "$portfolio.portfolioName",
                     projectedStartDate: 1,
                     projectedCompletionDate: 1,
                     createdAt: 1,
@@ -315,23 +382,21 @@ exports.getById = async (req, res) => {
                     tasks: {
                         taskId: 1,
                         taskName: 1
-                    },portfolio:{
-                        portfolioId: "$portfolio.portfolioId",
-                        portfolioName: "$portfolio.portfolioName"
                     }
                 }
             }
         ]);
 
         if (project.length === 0) {
-            return res.status(200).json({ message: 'Project not found' });
+            return res.status(404).json({ message: 'Project not found' });
         }
 
         res.status(200).json({ project: project[0] });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
+
 
     //Api to list the projects with pagination
 
@@ -406,7 +471,7 @@ exports.multipleProjectDelete = async (req, res) => {
 
 
 
-exports.getTable= async (req, res) => {
+exports.getProjectList= async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
         const projects = await projectModel.find();
