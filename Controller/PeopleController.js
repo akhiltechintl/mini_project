@@ -176,3 +176,26 @@ exports.getPeopleList= async (req, res) => {
         res.status(400).send(error.message);
     }
 };
+
+exports.listAll= async (req, res) => {
+    const { page , limit } = req.body;
+    console.log("page and limit")
+    console.log(page, limit)
+    if(!page || !limit){
+        return res.status(200).json({message:"page and limit not found"})
+    }
+    console.log("page ",page," ",limit)
+    try {
+        const options = {
+            page: parseInt(page),
+            limit: parseInt(limit),
+        };
+
+        const people = await peopleModel.paginate({}, options);
+
+        return res.status(200).json({"data":people});
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({ error: error.message });
+    }
+}

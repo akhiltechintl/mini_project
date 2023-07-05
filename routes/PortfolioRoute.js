@@ -8,6 +8,7 @@ router.route("/get-portfolio-list").get(PortfolioController.getPortfolioList);
 
 router.use(validateToken);
 router.route("/get-all").post(PortfolioController.getAll);
+router.route("/get-all-portfolios").post(PortfolioController.listPortfolios);
 
 router.use(authenticateToken);
 

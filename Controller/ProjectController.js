@@ -400,8 +400,10 @@ exports.getById = async (req, res) => {
 
     //Api to list the projects with pagination
 
-exports.getWithPagination= async (req, res) => {
+exports.listAllProjects= async (req, res) => {
         const { page , limit } = req.body;
+        console.log("page and limit")
+        console.log(page, limit)
     if(!page || !limit){
         return res.status(200).json({message:"page and limit not found"})
     }

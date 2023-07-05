@@ -12,7 +12,7 @@ router.use(validateToken);
 router.route("/get-all").post(ProjectController.getAll);
 router.route("/get-id").post(ProjectController.getId);
 router.route("/get-by-id").post(ProjectController.getById);
-router.route("/get-with-page").post(ProjectController.getWithPagination);
+router.route("/get-all-projects").post(ProjectController.listAllProjects);
 
 router.use(authenticateToken);
 

@@ -12,7 +12,7 @@ router.use(validateToken);
 
 
 router.route("/get-all").post(controller.getPeople);
-router.get('/list-all', controller.listPeople);
+router.route('/list-all').post(controller.listAll);
 router.route("/get-assignee").post(controller.getAssignee);
 
 router.use(authenticateToken);
