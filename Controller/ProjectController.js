@@ -5,47 +5,37 @@ const taskModel = require("../Models/Task");
 
 //api to save the project details
 exports.addProject = async (req, res) => {
-            try {
-                // const latestProject = await projectModel.findOne({}, {}, { sort: { projectId: -1 } });
-
-                // Increment the ID by 1
-                const projectId = await generateId();
-
-                const save = {
-
-                    status,
-                    projectName,
-                    projectDescription,
-                    projectDuration,
-                    portfolioId,
-                    projectOwner,
-                    projectedStartDate,
-                    projectedCompletionDate,
-                    createdAt,
-                    updatedAt
-                } = req.body;
-                save.projectId = projectId;
-
-
-                const saved = await projectModel.create(save);
-
-                return res.status(200).json({"Message": "Project Saved Successfully", "Data": saved});
-            } catch (error) {
-                return res.status(400).json({'error': error.message});
-
-        }
-    };
-
-//api to get all the projects
-exports.getAll = async (req, res) => {
-
     try {
-        const getAll = await projectModel.find()
-        return res.status(200).json({"data": getAll})
+        // const latestProject = await projectModel.findOne({}, {}, { sort: { projectId: -1 } });
+
+        // Increment the ID by 1
+        const projectId = await generateId();
+
+        const save = {
+
+            status,
+            projectName,
+            projectDescription,
+            projectDuration,
+            portfolioId,
+            projectOwner,
+            projectedStartDate,
+            projectedCompletionDate,
+            createdAt,
+            updatedAt
+        } = req.body;
+        save.projectId = projectId;
+
+
+        const saved = await projectModel.create(save);
+
+        return res.status(200).json({"Message": "Project Saved Successfully", "Data": saved});
     } catch (error) {
-        return res.status(400).json({"error": error});
+        return res.status(400).json({'error': error.message});
+
     }
 };
+
 
 //api to update projects
 exports.update = async (req, res) => {
@@ -62,7 +52,7 @@ exports.update = async (req, res) => {
             {new: false, upsert: false}
         );
         if (update.modifiedCount > 0 && update.matchedCount > 0) {
-            return res.status(200).json({"Message": "Project Updated Successfully","data":update});
+            return res.status(200).json({"Message": "Project Updated Successfully", "data": update});
         } else {
             return res.status(200).json({"message": "No record found"});
         }
@@ -71,29 +61,6 @@ exports.update = async (req, res) => {
     }
 };
 
-//api tp fetch particular projects by passing the project id
- exports.getId = async (req, res) => {
-     try {
-         const { projectId } = req.body;
-         console.log("projectId", projectId);
-
-         if (!projectId) {
-             return res.status(200).json({ "message": "Project Id is Required" });
-         }
-
-         const existingProject = await projectModel.find({ projectId: projectId });
-         console.log("body", existingProject);
-
-         if (existingProject.length > 0) {
-             console.log("exists");
-             return res.status(200).json({ "data": existingProject });
-         } else {
-             return res.status(200).json({ "message": "project not found" });
-         }
-     } catch (error) {
-         return res.status(400).json({ "error": error.message });
-     }
- };
 
 //api to delete projects by passing project id as parameter
 exports.deleteProject = async (req, res) => {
@@ -118,7 +85,7 @@ exports.deleteProject = async (req, res) => {
 //api to list the details of projects which are not tagged into a portfolio
 
 exports.notAssignedProjects = async (req, res) => {
-  await  projectModel.find({portfolioId: {$exists: false}})
+    await projectModel.find({portfolioId: {$exists: false}})
         .then(projects => {
             res.status(200).json({"data": projects});
         })
@@ -128,43 +95,6 @@ exports.notAssignedProjects = async (req, res) => {
 };
 
 
-// exports.tagPortfolio = async (req, res) => {
-//     const {projectId} = req.params;
-//     const {portfolioId} = req.body;
-//
-//     // // pro.getIndexes(0)
-//     // console.log("pro :",projectId.getIndexes(0));
-//
-//     if (!projectId || !portfolioId) {
-//         return res.status(200).json({"Message": "portfolioId Id And Project Id is required"})
-//     }
-//     projectModel.findOneAndUpdate({projectId: projectId}, {portfolioId}, {new: true})
-//         .then(async updatedProject => {
-//             if (updatedProject) {
-//
-//                 const updatedPortfolio = await portfolioModel.findOneAndUpdate(
-//                     {portfolioId},
-//                     {$push: {"projectId.ids": {$each: projectId?.ids || []}}},
-//                     {new: true}
-//                 );
-//
-//                 // const updatedPortfolio = await portfolioModel.findOneAndUpdate(
-//                 //     { portfolioId },
-//                 //     { $push: { "projectId.ids": projectId } },
-//                 //     { new: true }
-//                 // );
-//                 console.log("updated port :",updatedPortfolio);
-//                 return res.status(200).json({"message": "Portfolio Successfully tagged", "data": updatedProject});
-//             } else {
-//                 res.status(200).json({"message": 'Project not found.'});
-//             }
-//         })
-//         .catch(error => {
-//             res.status(400).json({"error": error.message});
-//         });
-// };
-
-//Api to tag portfolio
 exports.tagPortfolio = async (req, res) => {
 
     try {
@@ -182,11 +112,12 @@ exports.tagPortfolio = async (req, res) => {
 
         if (!updatedPortfolio) {
             return res.status(200).json({"message": "Portfolio not found"});
-        }
-        else
-        {
+        } else {
             projectModel.findOneAndUpdate({projectId: projectId}, {portfolioId}, {new: true})
-            res.status(200).json({"message": "Successfully added project IDs to the portfolio", "data": updatedPortfolio});
+            res.status(200).json({
+                "message": "Successfully added project IDs to the portfolio",
+                "data": updatedPortfolio
+            });
 
         }
     } catch (error) {
@@ -211,138 +142,18 @@ async function generateId() {
 
 //Api to fetch  project details and task details with the use of aggregation by passing project Id
 
-// exports.aggregateExample = async (req, res) => {
-//     const { projectId } = req.body;
-//
-//     try {
-//         const projectDetails = await portfolioModel.aggregate([
-//             {
-//                 $match: {
-//                     'projectId.ids': projectId
-//                 }
-//             },
-//             {
-//                 $unwind: '$projectId.ids'
-//             },
-//             {
-//                 $match: {
-//                     'projectId.ids': projectId
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: 'tasks',
-//                     localField: 'projectId.ids',
-//                     foreignField: 'projectId',
-//                     as: 'tasks',
-//                 },
-//             },
-//             {
-//                 $project: {
-//                     portfolioId: 1,
-//                     portfolioDescription: 1,
-//                     status: 1,
-//                     'portfolioManager._id': 1,
-//                     'portfolioManager.name': 1,
-//                     portfolioName: 1,
-//                     'tasks.taskName': 1,
-//                     'tasks.assignee': 1,
-//                     'tasks.taskId': 1,
-//                 },
-//             },
-//         ]);
-//
-//         if (projectDetails.length === 0) {
-//             return res.status(200).json({ "message": 'Project not found' });
-//         }
-//
-//         return res.json(projectDetails[0]);
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(200).json({ "message": error.message });
-//     }
-// };
-
-
-// exports.getById = async (req, res) => {
-//     try {
-//
-//         const { projectId } = req.body;
-//         console.log(projectId)
-//         if(!projectId){
-//             return res.status(200).json({message:"project Id not found"})
-//         }
-//
-//         const project = await projectModel.aggregate([
-//             {
-//                 $match: { projectId }
-//             },
-//             {
-//                 $lookup: {
-//                     from: "portfolios",
-//                     localField: "projectId",
-//                     foreignField: "projectId.ids",
-//                     as: "portfolio"
-//                 }
-//             },
-//             {
-//
-//                 $unwind: { path: "$portfolio", preserveNullAndEmptyArrays: true }
-//                 // $unwind: "$portfolio"
-//             },
-//             {
-//                 $lookup: {
-//                     from: "tasks",
-//                     localField: "projectId",
-//                     foreignField: "projectId",
-//                     as: "tasks"
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     _id: 1,
-//                     projectId: 1,
-//                     status: 1,
-//                     projectName: 1,
-//                     projectDescription: 1,
-//                     projectDuration: 1,
-//                     projectOwner: 1,
-//                     projectedStartDate: 1,
-//                     projectedCompletionDate: 1,
-//                     createdAt: 1,
-//                     updatedAt: 1,
-//                     __v: 1,
-//                     tasks: {
-//                         taskId: 1,
-//                         taskName: 1
-//                     },portfolio:{
-//                         portfolioId: "$portfolio.portfolioId",
-//                         portfolioName: "$portfolio.portfolioName"
-//                     }
-//                 }
-//             }
-//         ]);
-//
-//         if (project.length === 0) {
-//             return res.status(200).json({ message: 'Project not found' });
-//         }
-//
-//         res.status(200).json({ project: project[0] });
-//     } catch (error) {
-//         res.status(400).json({ message: error.message });
-//     }
-// };
-
-
 exports.getById = async (req, res) => {
     try {
         console.log('called get single project by id');
-        const { projectId } = req.body;
+        const {projectId} = req.body;
         console.log(projectId);
+        if (!projectId) {
+            return res.status(200).json({message: "project is null"})
+        }
 
         const project = await projectModel.aggregate([
             {
-                $match: { projectId } // Filter projects by projectId
+                $match: {projectId} // Filter projects by projectId
             },
             {
                 $lookup: {
@@ -388,99 +199,99 @@ exports.getById = async (req, res) => {
         ]);
 
         if (project.length === 0) {
-            return res.status(404).json({ message: 'Project not found' });
+            return res.status(404).json({message: 'Project not found'});
         }
 
-        res.status(200).json({ project: project[0] });
+        res.status(200).json({project: project[0]});
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({message: error.message});
     }
 };
 
 
-    //Api to list the projects with pagination
+//Api to list the projects with pagination
 
-exports.listAllProjects= async (req, res) => {
-        const { page , limit } = req.body;
-        console.log("page and limit")
-        console.log(page, limit)
-    if(!page || !limit){
-        return res.status(200).json({message:"page and limit not found"})
+exports.listAllProjects = async (req, res) => {
+    const {page, limit} = req.body;
+    const skip = (page - 1) * limit;
+    console.log("page and limit")
+    console.log(page, limit)
+    if (!page || !limit) {
+        return res.status(200).json({message: "page and limit not found"})
     }
-console.log("page ",page," ",limit)
-        try {
-            const options = {
-                page: parseInt(page),
-                limit: parseInt(limit),
-            };
+    console.log("page ", page, " ", limit)
+    try {
+        const options = {
+            page: parseInt(page),
+            limit: parseInt(limit),
+        };
 
-            const projects = await projectModel.paginate({}, options);
+        const projects = await projectModel.find().skip(skip).limit(limit);
+        // const projects = await projectModel.paginate({}, options);
 
-            return res.status(200).json({"data":projects});
-        } catch (error) {
-            console.error(error);
-            return res.status(400).json({ error: error.message });
-        }
+        return res.status(200).json({"data": projects});
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({error: error.message});
     }
+}
 
 
 exports.multipleProjectDelete = async (req, res) => {
     try {
-        const deleted=[];
-        const notDeleted=[];
+        const deleted = [];
+        const notDeleted = [];
         // const  projectIds =[];
-      const projectIds=req.params.projectIds
+        const projectIds = req.params.projectIds
             .replace('[', '')
             .replace(']', '')
             .split(',');
-      if(!projectIds){
-          return res.status(200).json({message:"project Id not found"})
-      }
+        if (!projectIds) {
+            return res.status(200).json({message: "project Id not found"})
+        }
         // projectIds.push(...req.params.projectIds.split(','));
-        console.log("path ",projectIds)
+        console.log("path ", projectIds)
         // Delete tasks matching the given task IDs
-        for(let i=0; i<projectIds.length; i++) {
+        for (let i = 0; i < projectIds.length; i++) {
             const result = await projectModel.deleteOne({projectId: projectIds[i]});
 
-            if(result.deletedCount===1){
-                console.log(i ,"th position, deleted :", projectIds[i]);
+            if (result.deletedCount === 1) {
+                console.log(i, "th position, deleted :", projectIds[i]);
                 deleted.push(projectIds[i]);
-            }
-            else if(result.deletedCount===0){
-                console.log(i ,"th position ,not deleted :", projectIds[i]);
-                notDeleted.push( projectIds[i]);
+            } else if (result.deletedCount === 0) {
+                console.log(i, "th position ,not deleted :", projectIds[i]);
+                notDeleted.push(projectIds[i]);
                 console.log("not deleted :", notDeleted[i]);
             }
         }
-        if (notDeleted.length===0) {
+        if (notDeleted.length === 0) {
             res.status(200).json({
                 message: 'Project deleted successfully.'
             });
         } else {
-            console.log("nottt ",notDeleted)
+            console.log("nottt ", notDeleted)
             res.status(200).json({
                 message: 'Some Project IDs not found in the database.',
                 missingTaskIds: notDeleted,
-                deleted:deleted
+                deleted: deleted
             });
 
-        } }
-    catch (error) {
+        }
+    } catch (error) {
         console.error(error);
-        res.status(400).json({ message: 'Error deleting projects.' });
+        res.status(400).json({message: 'Error deleting projects.'});
     }
 };
 
 
-
-exports.getProjectList= async (req, res) => {
+exports.getProjectList = async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
         const projects = await projectModel.find();
-        console.log("table:",projects)
+        console.log("table:", projects)
 
         // Render the project.ejs file with the projects data
-        res.render('project', { projects });
+        res.render('project', {projects});
     } catch (error) {
         // Handle error appropriately
         res.status(500).send('Internal Server Error');

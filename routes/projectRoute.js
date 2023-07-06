@@ -8,11 +8,10 @@ const router = express.Router()
 
 
 router.route("/get-project-list").get(ProjectController.getProjectList);
+
 router.use(validateToken);
-router.route("/get-all").post(ProjectController.getAll);
-router.route("/get-id").post(ProjectController.getId);
 router.route("/get-by-id").post(ProjectController.getById);
-router.route("/get-all-projects").post(ProjectController.listAllProjects);
+router.route("/get-all").post(ProjectController.listAllProjects);
 
 router.use(authenticateToken);
 

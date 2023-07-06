@@ -11,9 +11,9 @@ router.route("/get-people-list").get(controller.getPeopleList);
 router.use(validateToken);
 
 
-router.route("/get-all").post(controller.getPeople);
-router.route('/list-all').post(controller.listAll);
-router.route("/get-assignee").post(controller.getAssignee);
+
+router.route('/get-all').post(controller.getAll);
+router.route("/get-assignee-list").post(controller.getAssignee);
 
 router.use(authenticateToken);
 

@@ -9,7 +9,8 @@ exports.addTask = async (req, res) => {
         const taskId = await generateId();
         console.log("task id", taskId)
 
-        const task = {assignee,
+        const task = {
+            assignee,
             status,
             planHours,
             duration,
@@ -48,7 +49,7 @@ exports.updateTask = async (req, res) => {
             {new: false, upsert: false}
         );
         if (update.modifiedCount > 0 && update.matchedCount > 0) {
-            return res.status(200).json({"Message": "Task Updated Successfully","data":update});
+            return res.status(200).json({"Message": "Task Updated Successfully", "data": update});
         } else {
             return res.status(200).json({"message": "No record found"});
         }
@@ -78,145 +79,57 @@ exports.deleteTask = async (req, res) => {
     }
 }
 
-//Api to get All task
-exports.getAll = async (req, res) => {
-    const getAll = await taskModel.find();
-    return res.status(200).json({"message": "Successfully called get", "data": getAll});
-}
-
-// Api to add an assignee to a task
-// exports.addAssignee = (req, res) => {
-//     const {taskId} = req.params;
-//     const {assignee} = req.body;
-//
-//     if (!taskId || !assignee) {
-//         return res.status(200).json({"Message": "Task Id And Assignee Id is required"})
-//     }
-//     taskModel.findOneAndUpdate({taskId: taskId}, {assignee}, {new: true})
-//         .then(updatedTask => {
-//             if (updatedTask) {
-//                 return res.status(200).json({"message": "Assignee Successfully tagged to Task", "data": updatedTask});
-//             } else {
-//                 res.status(200).json({"message": 'Task not found.'});
-//             }
-//         })
-//         .catch(error => {
-//             res.status(400).json({"error": error.message});
-//         });
-// };
 
 //api to get the details of a particular task by passing Project Id
- exports.getTaskById = async (req, res) => {
-     try {
-         const { projectId } = req.body;
-         console.log("projectId", projectId);
-
-         if (!projectId) {
-             return res.status(200).json({ "message": "Project Id is Required" });
-         }
-
-         const existingProject = await taskModel.find({ projectId: projectId });
-         console.log("body", existingProject);
-
-         if (existingProject.length > 0) {
-             console.log("exists");
-             return res.status(200).json({ "data": existingProject });
-         } else {
-             return res.status(200).json({ "message": "project not found" });
-         }
-     } catch (error) {
-         return res.status(400).json({ "error": error.message });
-     }
- };
-
-
-// exports.multipleTaskDelete = async (req, res) => {
-//     try {
-//         const { taskIds } = req.body;
-//         console.log(taskIds.length);
-//         // Delete tasks matching the given task IDs
-//         const result = await taskModel.deleteMany({ taskId: { $in: taskIds } });
-//
-//         const { n, deletedCount } = result;
-//         console.log("result ", result);
-//
-//         if (n === taskIds.length && n === deletedCount) {
-//             console.log("entered if");
-//             res.status(200).json({ message: 'Tasks deleted successfully.' });
-//         } else {
-//             const deletedTaskIds = taskIds.filter((taskId) => {
-//                 return (
-//                     result.deletedCount &&
-//                     result.deletedCount > 0 &&
-//                     result.deletedCount === n &&
-//                     !result.writeErrors.some((err) => err.op.taskId === taskId)
-//                 );
-//             });
-//
-//             const missingTaskIds = taskIds.filter(
-//                 (taskId) => !deletedTaskIds.includes(taskId)
-//             );
-//
-//             res.status(404).json({
-//                 message: 'One or more task IDs not found in the database.',
-//                 missingTaskIds,
-//             });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'Error deleting tasks.' });
-//     }
-// };
 
 exports.multipleTaskDelete = async (req, res) => {
     try {
-        const deleted=[];
-        const notDeleted=[];
-        const { taskIds } = req.body;
+        const deleted = [];
+        const notDeleted = [];
+        const {taskIds} = req.body;
         console.log("taskIds ", taskIds[0]);
         // Delete tasks matching the given task IDs
-        for(let i=0;i<taskIds.length;i++) {
+        for (let i = 0; i < taskIds.length; i++) {
             const result = await taskModel.deleteOne({taskId: taskIds[i]});
 
-          if(result.deletedCount===1){
-              console.log(i ,"th position, deleted :", taskIds[i]);
-              deleted.push(taskIds[i]);
-          }
-            else if(result.deletedCount===0){
-              console.log(i ,"th position ,not deleted :", taskIds[i]);
-                notDeleted.push( taskIds[i]);
-              console.log("not deleted :", notDeleted[i]);
-          }
+            if (result.deletedCount === 1) {
+                console.log(i, "th position, deleted :", taskIds[i]);
+                deleted.push(taskIds[i]);
+            } else if (result.deletedCount === 0) {
+                console.log(i, "th position ,not deleted :", taskIds[i]);
+                notDeleted.push(taskIds[i]);
+                console.log("not deleted :", notDeleted[i]);
+            }
         }
-        if (notDeleted.length===0) {
+        if (notDeleted.length === 0) {
             res.status(200).json({
                 message: 'Tasks deleted successfully.'
             });
         } else {
-            console.log("nottt ",notDeleted)
+            console.log("nottt ", notDeleted)
             res.status(400).json({
                 message: 'Some task IDs not found in the database.',
                 missingTaskIds: notDeleted,
-                deleted:deleted
+                deleted: deleted
             });
 
-    } }
-    catch (error) {
+        }
+    } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error deleting tasks.' });
+        res.status(500).json({message: 'Error deleting tasks.'});
     }
 };
 
 exports.getById = async (req, res) => {
     try {
         const {taskId} = req.body;
-if(!taskId){
-    return res.status(400).json({message:"task Id not found"})
-}
+        if (!taskId) {
+            return res.status(400).json({message: "task Id not found"})
+        }
         // Fetch the task with the provided taskId
         const task = await taskModel.aggregate([
             {
-                $match: { taskId: taskId }
+                $match: {taskId: taskId}
             },
             {
                 $lookup: {
@@ -252,12 +165,12 @@ if(!taskId){
         ]);
 
         if (!task || task.length === 0) {
-            return res.status(200).json({ message: 'Task not found' });
+            return res.status(200).json({message: 'Task not found'});
         }
 
-        res.status(200).json({data:task});
+        res.status(200).json({data: task});
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({error: error.message});
     }
 };
 
@@ -316,39 +229,41 @@ exports.addAssignee = (req, res) => {
         });
 };
 
-exports.getTaskList= async (req, res) => {
+exports.getTaskList = async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
         const tasks = await taskModel.find();
-        console.log("table:",tasks)
+        console.log("table:", tasks)
 
         // Render the project.ejs file with the projects data
-        res.render('task', { tasks });
+        res.render('task', {tasks});
     } catch (error) {
         // Handle error appropriately
         res.status(400).send(error.message);
     }
 };
 
-exports.listAllTask= async (req, res) => {
-    const { page , limit } = req.body;
+exports.listAllTask = async (req, res) => {
+    const {page, limit} = req.body;
+    const skip = (page - 1) * limit;
     console.log("page and limit")
     console.log(page, limit)
-    if(!page || !limit){
-        return res.status(200).json({message:"page and limit not found"})
+    if (!page || !limit) {
+        return res.status(200).json({message: "page and limit not found"})
     }
-    console.log("page ",page," ",limit)
+    console.log("page ", page, " ", limit)
     try {
         const options = {
             page: parseInt(page),
             limit: parseInt(limit),
         };
 
-        const tasks = await taskModel.paginate({}, options);
+        const tasks = await taskModel.find().skip(skip).limit(limit);
+        // const tasks = await taskModel.paginate({}, options);
 
-        return res.status(200).json({"data":tasks});
+        return res.status(200).json({"data": tasks});
     } catch (error) {
         console.error(error);
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({error: error.message});
     }
 }

@@ -7,8 +7,8 @@ const router = express.Router()
 router.route("/get-portfolio-list").get(PortfolioController.getPortfolioList);
 
 router.use(validateToken);
+
 router.route("/get-all").post(PortfolioController.getAll);
-router.route("/get-all-portfolios").post(PortfolioController.listPortfolios);
 
 router.use(authenticateToken);
 
@@ -17,6 +17,6 @@ router.route("/add-project/:portfolioId").post(PortfolioController.addProjectToP
 router.route("/update").put(PortfolioController.updatePortfolio);
 router.route("/delete/:portfolioId").delete(PortfolioController.deletePortfolio);
 router.route("/multi-delete").post(PortfolioController.multiplePortfolioDelete);
-router.route("/aggregate").post(PortfolioController.aggregate);
+router.route("/get-by-id").post(PortfolioController.getById);
 
 module.exports = router

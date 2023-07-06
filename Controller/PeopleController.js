@@ -39,16 +39,6 @@ async function generatePeopleId() {
 }
 
 //API To Get-All People
-exports.getPeople = async (req, res) => {
-    try {
-
-        const getAll = await peopleModel.find();
-        return res.status(200).json({"data": getAll})
-    } catch (error) {
-        return res.status(400).json({error: error});
-    }
-};
-
 exports.listPeople = async (req, res) => {
     try {
         console.log('called get all people to html');
@@ -56,7 +46,7 @@ exports.listPeople = async (req, res) => {
         const people = await peopleModel.find();
 
 
-        res.render('people', { people }); // Render the people.ejs template with the people data
+        res.render('people', {people}); // Render the people.ejs template with the people data
 
 
         // res.status(200).json({people});
@@ -78,7 +68,7 @@ exports.updatePeople = async (req, res) => {
         const update = await peopleModel.updateOne({peopleId: peopleId}, {$set: req.body}, {new: true, upsert: false});
 
         if (update.modifiedCount > 0 && update.matchedCount > 0) {
-            return res.status(200).json({"message": "People Updated Successfully","data":update});
+            return res.status(200).json({"message": "People Updated Successfully", "data": update});
         } else {
             return res.status(200).json({"message": "No Record Found"});
         }
@@ -124,78 +114,79 @@ exports.deletePeople = async (req, res) => {
 
 exports.multiplePeopleDelete = async (req, res) => {
     try {
-        const deleted=[];
-        const notDeleted=[];
-        const {peopleIds}  = req.body;
+        const deleted = [];
+        const notDeleted = [];
+        const {peopleIds} = req.body;
         // const length  = req.body.peopleIds.length;
-        console.log("length : ",peopleIds)
-        console.log("port : ",peopleIds)
+        console.log("length : ", peopleIds)
+        console.log("port : ", peopleIds)
         // Delete tasks matching the given task IDs
-        for(let i=0; i<peopleIds.length; i++) {
+        for (let i = 0; i < peopleIds.length; i++) {
             const result = await peopleModel.deleteOne({peopleId: peopleIds[i]});
 
-            if(result.deletedCount===1){
-                console.log(i ,"th position, deleted :", peopleIds[i]);
+            if (result.deletedCount === 1) {
+                console.log(i, "th position, deleted :", peopleIds[i]);
                 deleted.push(peopleIds[i]);
-            }
-            else if(result.deletedCount===0){
-                console.log(i ,"th position ,not deleted :", peopleIds[i]);
-                notDeleted.push( peopleIds[i]);
+            } else if (result.deletedCount === 0) {
+                console.log(i, "th position ,not deleted :", peopleIds[i]);
+                notDeleted.push(peopleIds[i]);
                 console.log("not deleted :", notDeleted[i]);
             }
         }
-        if (notDeleted.length===0) {
+        if (notDeleted.length === 0) {
             res.status(200).json({
                 message: 'people deleted successfully.'
             });
         } else {
-            console.log("nottt ",notDeleted)
+            console.log("nottt ", notDeleted)
             res.status(400).json({
                 message: 'Some people not found in the database.',
                 missingTaskIds: notDeleted,
-                deleted:deleted
+                deleted: deleted
             });
 
-        } }
-    catch (error) {
+        }
+    } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error deleting people.' });
+        res.status(500).json({message: 'Error deleting people.'});
     }
 };
 
-exports.getPeopleList= async (req, res) => {
+exports.getPeopleList = async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
         const peoples = await peopleModel.find();
-        console.log("table:",peoples)
+        console.log("table:", peoples)
 
         // Render the project.ejs file with the projects data
-        res.render('people', { peoples });
+        res.render('people', {peoples});
     } catch (error) {
         // Handle error appropriately
         res.status(400).send(error.message);
     }
 };
 
-exports.listAll= async (req, res) => {
-    const { page , limit } = req.body;
+exports.getAll = async (req, res) => {
+    const {page, limit} = req.body;
+    const skip = (page - 1) * limit;
     console.log("page and limit")
     console.log(page, limit)
-    if(!page || !limit){
-        return res.status(200).json({message:"page and limit not found"})
+    if (!page || !limit) {
+        return res.status(200).json({message: "page and limit not found"})
     }
-    console.log("page ",page," ",limit)
+    console.log("page ", page, " ", limit)
     try {
         const options = {
             page: parseInt(page),
             limit: parseInt(limit),
         };
 
-        const people = await peopleModel.paginate({}, options);
+        const people = await peopleModel.find().skip(skip).limit(limit);
+        // const people = await peopleModel.paginate({}, options);
 
-        return res.status(200).json({"data":people});
+        return res.status(200).json({"data": people});
     } catch (error) {
         console.error(error);
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({error: error.message});
     }
 }
