@@ -66,7 +66,7 @@ exports.updatePeople = async (req, res) => {
 
     try {
         const update = await peopleModel.updateOne({peopleId: peopleId}, {$set: req.body}, {new: true, upsert: false});
-
+console.log("update ",update)
         if (update.modifiedCount > 0 && update.matchedCount > 0) {
             return res.status(200).json({"message": "People Updated Successfully", "data": update});
         } else {

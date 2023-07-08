@@ -153,7 +153,8 @@ exports.getById = async (req, res) => {
 
         const project = await projectModel.aggregate([
             {
-                $match: {projectId} // Filter projects by projectId
+                $match: {projectId:projectId} // Filter projects by projectId
+
             },
             {
                 $lookup: {
@@ -163,9 +164,9 @@ exports.getById = async (req, res) => {
                     as: "portfolio"
                 }
             },
-            {
-                $unwind: "$portfolio"
-            },
+            // {
+            //     $unwind: "$portfolio"
+            // },
             {
                 $lookup: {
                     from: "tasks",
@@ -183,8 +184,9 @@ exports.getById = async (req, res) => {
                     projectDescription: 1,
                     projectDuration: 1,
                     projectOwner: 1,
-                    portfolioId: "$portfolio.portfolioId",
-                    portfolioName: "$portfolio.portfolioName",
+                    portfolio:1,
+                    // portfolioId: "$portfolio.portfolioId",
+                    // portfolioName: "$portfolio.portfolioName",
                     projectedStartDate: 1,
                     projectedCompletionDate: 1,
                     createdAt: 1,
@@ -197,7 +199,7 @@ exports.getById = async (req, res) => {
                 }
             }
         ]);
-
+console.log("project ",project)
         if (project.length === 0) {
             return res.status(404).json({message: 'Project not found'});
         }

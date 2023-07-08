@@ -139,9 +139,9 @@ exports.getById = async (req, res) => {
                     as: 'project'
                 }
             },
-            {
-                $unwind: '$project'
-            },
+            // {
+            //     $unwind: '$project'
+            // },
             {
                 $project: {
                     assignee: 1,
@@ -155,8 +155,9 @@ exports.getById = async (req, res) => {
                     dueOn: 1,
                     taskName: 1,
                     description: 1,
-                    'project.projectId': '$project.projectId',
-                    'project.projectName': '$project.projectName',
+                    project:1,
+                    // 'project.projectId': '$project.projectId',
+                    // 'project.projectName': '$project.projectName',
                     createdAt: 1,
                     updatedAt: 1,
                     __v: 1
