@@ -38,25 +38,7 @@ async function generatePeopleId() {
     return "0001";
 }
 
-//API To Get-All People
-exports.listPeople = async (req, res) => {
-    try {
-        console.log('called get all people to html');
-
-        const people = await peopleModel.find();
-
-
-        res.render('people', {people}); // Render the people.ejs template with the people data
-
-
-        // res.status(200).json({people});
-
-    } catch (error) {
-        res.status(500).json({message: error.message});
-    }
-};
-
-//api to update people
+//api to update people details
 exports.updatePeople = async (req, res) => {
     const peopleId = req.body.peopleId;
     console.log("peopleId", peopleId);
@@ -66,7 +48,7 @@ exports.updatePeople = async (req, res) => {
 
     try {
         const update = await peopleModel.updateOne({peopleId: peopleId}, {$set: req.body}, {new: true, upsert: false});
-console.log("update ",update)
+        console.log("update ", update)
         if (update.modifiedCount > 0 && update.matchedCount > 0) {
             return res.status(200).json({"message": "People Updated Successfully", "data": update});
         } else {
@@ -112,6 +94,7 @@ exports.deletePeople = async (req, res) => {
     }
 }
 
+//api to delete multiple users by passing user id as parameter
 exports.multiplePeopleDelete = async (req, res) => {
     try {
         const deleted = [];
@@ -152,6 +135,7 @@ exports.multiplePeopleDelete = async (req, res) => {
     }
 };
 
+//Api to list all people details in a table
 exports.getPeopleList = async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
@@ -166,6 +150,8 @@ exports.getPeopleList = async (req, res) => {
     }
 };
 
+
+//Api to list all people details with pagination
 exports.getAll = async (req, res) => {
     const {page, limit} = req.body;
     const skip = (page - 1) * limit;

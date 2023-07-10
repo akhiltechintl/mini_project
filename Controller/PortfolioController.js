@@ -2,7 +2,7 @@ const portfolioModel = require("../Models/Portfolio");
 const projectModel = require("../Models/Project");
 const taskModel = require("../Models/Task");
 
-//api to portfolio details
+//api to add portfolio details
 exports.addPortfolio = async (req, res) => {
     try {
         const portfolioId = await generateId();
@@ -25,17 +25,6 @@ exports.addPortfolio = async (req, res) => {
 
 };
 
-//api to get the details of all the portfolios
-
-exports.getAll = async (req, res) => {
-    try {
-        const findAll = await portfolioModel.find();
-        console.log(findAll)
-        return res.status(200).json({"data": findAll});
-    } catch (error) {
-        res.send(400).json({"error": error.message})
-    }
-}
 
 //api to update portfolio details
 
@@ -100,7 +89,6 @@ async function generateId() {
 }
 
 //Api to add Projects to a portfolio
-
 exports.addProjectToPortfolio = async (req, res) => {
     const {projectId} = req.body;
     const {portfolioId} = req.params;
@@ -154,6 +142,8 @@ exports.addProjectToPortfolio = async (req, res) => {
     }
 };
 
+
+//Api to delete Multiple Portfolios
 exports.multiplePortfolioDelete = async (req, res) => {
     try {
         const deleted = [];
@@ -194,6 +184,8 @@ exports.multiplePortfolioDelete = async (req, res) => {
     }
 };
 
+
+//Api to get the details of a particular portfolio by passing the portfolio Id
 exports.getById = async (req, res) => {
     try {
         const {portfolioId} = req.body;
@@ -235,19 +227,19 @@ exports.getById = async (req, res) => {
     }
 };
 
+//api to list portfolios in a table
 exports.getPortfolioList = async (req, res) => {
     try {
-        // Fetch projects from the database (assuming you're using Mongoose)
         const portfolios = await portfolioModel.find();
         console.log("portfolio:", portfolios)
 
-        // Render the project.ejs file with the projects data
         res.render('portfolio', {portfolios});
     } catch (error) {
         res.status(400).send(error.message);
     }
 };
 
+//api to get the details of all the portfolios with pagination
 exports.getAll = async (req, res) => {
     const {page, limit} = req.body;
     const skip = (page - 1) * limit;

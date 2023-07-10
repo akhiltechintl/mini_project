@@ -120,6 +120,7 @@ exports.multipleTaskDelete = async (req, res) => {
     }
 };
 
+//Api to get the task details by passing Task id as parameter
 exports.getById = async (req, res) => {
     try {
         const {taskId} = req.body;
@@ -155,7 +156,7 @@ exports.getById = async (req, res) => {
                     dueOn: 1,
                     taskName: 1,
                     description: 1,
-                    project:1,
+                    project: 1,
                     // 'project.projectId': '$project.projectId',
                     // 'project.projectName': '$project.projectName',
                     createdAt: 1,
@@ -175,8 +176,7 @@ exports.getById = async (req, res) => {
     }
 };
 
-//Api to generate id for task
-
+//Function to generate id for task
 async function generateId() {
     const lastTaskId = await taskModel.findOne({}, {}, {sort: {taskId: -1}});
 
@@ -210,6 +210,7 @@ async function generateId() {
 //         });
 // };
 
+//Api to add assignee to task
 exports.addAssignee = (req, res) => {
     const {taskId} = req.params;
     const {assignee} = req.body;
@@ -230,6 +231,7 @@ exports.addAssignee = (req, res) => {
         });
 };
 
+//Api to list the task details in a table
 exports.getTaskList = async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
@@ -244,6 +246,7 @@ exports.getTaskList = async (req, res) => {
     }
 };
 
+//api to list all tasks with pagination
 exports.listAllTask = async (req, res) => {
     const {page, limit} = req.body;
     const skip = (page - 1) * limit;

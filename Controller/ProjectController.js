@@ -6,9 +6,6 @@ const taskModel = require("../Models/Task");
 //api to save the project details
 exports.addProject = async (req, res) => {
     try {
-        // const latestProject = await projectModel.findOne({}, {}, { sort: { projectId: -1 } });
-
-        // Increment the ID by 1
         const projectId = await generateId();
 
         const save = {
@@ -94,38 +91,97 @@ exports.notAssignedProjects = async (req, res) => {
         });
 };
 
+//api to tag projects to portfolio
 
 exports.tagPortfolio = async (req, res) => {
 
+    const {projectId} = req.body;
+    const {portfolioId} = req.params;
+    const temp = null;
+    if (!projectId || !portfolioId) {
+        return res.status(200).json({"Message": "portfolioId Id And Project Id is required"});
+    }
+
     try {
-        const {portfolioId} = req.params;
-        const {projectId} = req.body;
-        if (!portfolioId || !projectId) {
-            return res.status(200).json({"message": "Portfolio ID and Project ID is Required"})
+        console.log("Entered try:");
+
+        const updatedProjects = [];
+        // const updatedProject = [];
+        const notFound = [];
+
+        for (let i = 0; i < projectId.ids.length; i++) {
+            console.log("Entered for:");
+
+            const existingProject = await projectModel.findOne({projectId: projectId.ids[i]});
+
+
+            if (existingProject) {
+                await projectModel.findOneAndUpdate({projectId: projectId.ids[i]}, {portfolioId}, {new: true});
+                console.log("project id :", projectId.ids[i]);
+                const updatedProject = await portfolioModel.findOneAndUpdate(
+                    {portfolioId},
+                    {$push: {"projectId.ids": projectId.ids[i]}},
+                    {new: true}
+                );
+                console.log("O/P: ", updatedProject[i])
+
+                updatedProjects.push(updatedProject);
+            } else {
+
+                notFound[i] = projectId.ids[i];
+            }
         }
-        const updatedPortfolio = await portfolioModel.findOneAndUpdate(
-            {portfolioId},
-            {$push: {"projectId.ids": {$each: projectId?.ids || []}}},
-            {new: true}
-        );
-
-
-        if (!updatedPortfolio) {
-            return res.status(200).json({"message": "Portfolio not found"});
-        } else {
-            projectModel.findOneAndUpdate({projectId: projectId}, {portfolioId}, {new: true})
-            res.status(200).json({
-                "message": "Successfully added project IDs to the portfolio",
-                "data": updatedPortfolio
+        if (notFound.length > 0) {
+            return res.status(200).json({
+                "message": "some projects not found",
+                "not found": notFound,
+                "updated": updatedProjects
             });
-
+        } else {
+            return res.status(200).json({"message": "success", "data": updatedProjects});
         }
+
+
     } catch (error) {
-        res.status(400).send({"error": error.message});
+        return res.status(400).json({"error": error.message});
     }
 
 
 };
+
+
+// exports.tagPortfolio = async (req, res) => {
+//
+//     try {
+//         const {portfolioId} = req.params;
+//         const {projectId} = req.body;
+//         if (!portfolioId || !projectId) {
+//             return res.status(200).json({"message": "Portfolio ID and Project ID is Required"})
+//         }
+//         const updatedPortfolio = await portfolioModel.findOneAndUpdate(
+//             {portfolioId},
+//             {$push: {"projectId.ids": {$each: projectId?.ids || []}}},
+//             {new: true}
+//         );
+//
+//
+//         if (!updatedPortfolio) {
+//             return res.status(200).json({"message": "Portfolio not found"});
+//         } else {
+//             projectModel.findOneAndUpdate({projectId: projectId}, {portfolioId}, {new: true})
+//             res.status(200).json({
+//                 "message": "Successfully added project IDs to the portfolio",
+//                 "data": updatedPortfolio
+//             });
+//
+//         }
+//     } catch (error) {
+//         res.status(400).send({"error": error.message});
+//     }
+//
+//
+// };
+
 
 //Api to generate id for projects
 async function generateId() {
@@ -140,8 +196,7 @@ async function generateId() {
     return "0001";
 }
 
-//Api to fetch  project details and task details with the use of aggregation by passing project Id
-
+//Api to fetch  project details and task details by passing project Id
 exports.getById = async (req, res) => {
     try {
         console.log('called get single project by id');
@@ -153,7 +208,7 @@ exports.getById = async (req, res) => {
 
         const project = await projectModel.aggregate([
             {
-                $match: {projectId:projectId} // Filter projects by projectId
+                $match: {projectId: projectId} // Filter projects by projectId
 
             },
             {
@@ -184,7 +239,7 @@ exports.getById = async (req, res) => {
                     projectDescription: 1,
                     projectDuration: 1,
                     projectOwner: 1,
-                    portfolio:1,
+                    portfolio: 1,
                     // portfolioId: "$portfolio.portfolioId",
                     // portfolioName: "$portfolio.portfolioName",
                     projectedStartDate: 1,
@@ -199,7 +254,7 @@ exports.getById = async (req, res) => {
                 }
             }
         ]);
-console.log("project ",project)
+        console.log("project ", project)
         if (project.length === 0) {
             return res.status(404).json({message: 'Project not found'});
         }
@@ -212,7 +267,6 @@ console.log("project ",project)
 
 
 //Api to list the projects with pagination
-
 exports.listAllProjects = async (req, res) => {
     const {page, limit} = req.body;
     const skip = (page - 1) * limit;
@@ -238,7 +292,7 @@ exports.listAllProjects = async (req, res) => {
     }
 }
 
-
+//Api to Delete Multiple projects by passing project ids
 exports.multipleProjectDelete = async (req, res) => {
     try {
         const deleted = [];
@@ -285,7 +339,7 @@ exports.multipleProjectDelete = async (req, res) => {
     }
 };
 
-
+//Api to list project details in a table
 exports.getProjectList = async (req, res) => {
     try {
         // Fetch projects from the database (assuming you're using Mongoose)
